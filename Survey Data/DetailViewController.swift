@@ -465,7 +465,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         locationPhotoClickedRow = 0
         locationPhotoClickedIndexPath = 0
         
-        self.view.backgroundColor = UIColor(patternImage: UIImage(named:"MLP Logo Watermark")!)
+        view.addBackground(imageName: "MLP Logo Watermark", contextMode: .scaleAspectFit)
         
         // Date pickers
         datePicker.date = (survey?.repeatDate as Date?)!
@@ -1675,3 +1675,24 @@ extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSo
         present(imagePickerController, animated: true, completion: nil)
     }
 }
+
+extension UIView {
+    func addBackground(imageName: String = "YOUR DEFAULT IMAGE NAME", contextMode: UIViewContentMode = .scaleToFill) {
+        // setup the UIImageView
+        let backgroundImageView = UIImageView(frame: UIScreen.main.bounds)
+        backgroundImageView.image = UIImage(named: imageName)
+        backgroundImageView.contentMode = contentMode
+        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        addSubview(backgroundImageView)
+        sendSubview(toBack: backgroundImageView)
+        
+        // adding NSLayoutConstraints
+        let leadingConstraint = NSLayoutConstraint(item: backgroundImageView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0.0)
+        let trailingConstraint = NSLayoutConstraint(item: backgroundImageView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1.0, constant: 0.0)
+        let topConstraint = NSLayoutConstraint(item: backgroundImageView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0.0)
+        let bottomConstraint = NSLayoutConstraint(item: backgroundImageView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1.0, constant: 0.0)
+        
+        NSLayoutConstraint.activate([leadingConstraint, trailingConstraint, topConstraint, bottomConstraint])
+    }
+} // http://stackoverflow.com/questions/27153181/how-do-you-make-a-background-image-scale-to-screen-size-in-swift

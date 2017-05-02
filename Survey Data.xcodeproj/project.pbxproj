@@ -7,14 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C32A3C1F1EB01B340070066E /* LocationPhotosCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A3C1E1EB01B340070066E /* LocationPhotosCollectionViewCell.swift */; };
+		C32A3C211EB290650070066E /* TeamTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A3C201EB290650070066E /* TeamTableViewController.swift */; };
+		C32A3C231EB2951C0070066E /* MLPTeamTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A3C221EB2951C0070066E /* MLPTeamTableViewCell.swift */; };
+		C32A3C251EB2D74F0070066E /* TeamNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A3C241EB2D74F0070066E /* TeamNames.swift */; };
+		C34C60801E83017F00B90FD9 /* KeywordTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34C607F1E83017F00B90FD9 /* KeywordTableViewCell.swift */; };
+		C34C60821E8313E000B90FD9 /* KeywordData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34C60811E8313E000B90FD9 /* KeywordData.swift */; };
+		C3973D111E7B7A1E004C82DB /* TemplateForTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3973D101E7B7A1E004C82DB /* TemplateForTableViewController.swift */; };
+		C3973D131E7B7A3B004C82DB /* TemplateForTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3973D121E7B7A3B004C82DB /* TemplateForTableViewCell.swift */; };
+		C3E555611E92F09300AB01E9 /* SurveyTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E555601E92F09300AB01E9 /* SurveyTableViewCell.swift */; };
+		C3E555641E9454F900AB01E9 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3E555631E9454F900AB01E9 /* MapKit.framework */; };
 		C3F102201E6F498600EB1B4E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F1021F1E6F498600EB1B4E /* AppDelegate.swift */; };
 		C3F102221E6F498600EB1B4E /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F102211E6F498600EB1B4E /* MasterViewController.swift */; };
 		C3F102241E6F498600EB1B4E /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F102231E6F498600EB1B4E /* DetailViewController.swift */; };
 		C3F102271E6F498600EB1B4E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F102251E6F498600EB1B4E /* Main.storyboard */; };
-		C3F102291E6F498600EB1B4E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C3F102281E6F498600EB1B4E /* Assets.xcassets */; };
 		C3F1022C1E6F498600EB1B4E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C3F1022A1E6F498600EB1B4E /* LaunchScreen.storyboard */; };
 		C3F102371E6F498700EB1B4E /* Survey_DataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F102361E6F498700EB1B4E /* Survey_DataTests.swift */; };
 		C3F102421E6F498700EB1B4E /* Survey_DataUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F102411E6F498700EB1B4E /* Survey_DataUITests.swift */; };
+		C3F102801E6FAE0900EB1B4E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C3F1027F1E6FAE0900EB1B4E /* Assets.xcassets */; };
+		C3F102861E79BDAF00EB1B4E /* Survey.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F102851E79BDAF00EB1B4E /* Survey.swift */; };
+		C3F102881E79C62000EB1B4E /* RepeatImageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F102871E79C62000EB1B4E /* RepeatImageData.swift */; };
+		C3F1028A1E79CFB500EB1B4E /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F102891E79CFB500EB1B4E /* LocationData.swift */; };
+		C3F103221E7B774C00EB1B4E /* LocationDataTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F1031F1E7B774C00EB1B4E /* LocationDataTableViewCell.swift */; };
+		C3F103241E7B774C00EB1B4E /* RepeatImageDataViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F103211E7B774C00EB1B4E /* RepeatImageDataViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,12 +50,21 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C32A3C1E1EB01B340070066E /* LocationPhotosCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationPhotosCollectionViewCell.swift; sourceTree = "<group>"; };
+		C32A3C201EB290650070066E /* TeamTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamTableViewController.swift; sourceTree = "<group>"; };
+		C32A3C221EB2951C0070066E /* MLPTeamTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MLPTeamTableViewCell.swift; sourceTree = "<group>"; };
+		C32A3C241EB2D74F0070066E /* TeamNames.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamNames.swift; sourceTree = "<group>"; };
+		C34C607F1E83017F00B90FD9 /* KeywordTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeywordTableViewCell.swift; sourceTree = "<group>"; };
+		C34C60811E8313E000B90FD9 /* KeywordData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeywordData.swift; sourceTree = "<group>"; };
+		C3973D101E7B7A1E004C82DB /* TemplateForTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplateForTableViewController.swift; sourceTree = "<group>"; };
+		C3973D121E7B7A3B004C82DB /* TemplateForTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplateForTableViewCell.swift; sourceTree = "<group>"; };
+		C3E555601E92F09300AB01E9 /* SurveyTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyTableViewCell.swift; sourceTree = "<group>"; };
+		C3E555631E9454F900AB01E9 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		C3F1021C1E6F498600EB1B4E /* Survey Data.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Survey Data.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C3F1021F1E6F498600EB1B4E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C3F102211E6F498600EB1B4E /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
 		C3F102231E6F498600EB1B4E /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		C3F102261E6F498600EB1B4E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		C3F102281E6F498600EB1B4E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C3F1022B1E6F498600EB1B4E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C3F1022D1E6F498700EB1B4E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C3F102321E6F498700EB1B4E /* Survey DataTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Survey DataTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -49,6 +73,12 @@
 		C3F1023D1E6F498700EB1B4E /* Survey DataUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Survey DataUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C3F102411E6F498700EB1B4E /* Survey_DataUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Survey_DataUITests.swift; sourceTree = "<group>"; };
 		C3F102431E6F498700EB1B4E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C3F1027F1E6FAE0900EB1B4E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C3F102851E79BDAF00EB1B4E /* Survey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Survey.swift; sourceTree = "<group>"; };
+		C3F102871E79C62000EB1B4E /* RepeatImageData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepeatImageData.swift; sourceTree = "<group>"; };
+		C3F102891E79CFB500EB1B4E /* LocationData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
+		C3F1031F1E7B774C00EB1B4E /* LocationDataTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationDataTableViewCell.swift; sourceTree = "<group>"; };
+		C3F103211E7B774C00EB1B4E /* RepeatImageDataViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepeatImageDataViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3E555641E9454F900AB01E9 /* MapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,6 +107,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C3E555621E9454F900AB01E9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C3E555631E9454F900AB01E9 /* MapKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C3F102131E6F498600EB1B4E = {
 			isa = PBXGroup;
 			children = (
@@ -83,6 +122,7 @@
 				C3F102351E6F498700EB1B4E /* Survey DataTests */,
 				C3F102401E6F498700EB1B4E /* Survey DataUITests */,
 				C3F1021D1E6F498600EB1B4E /* Products */,
+				C3E555621E9454F900AB01E9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -102,10 +142,24 @@
 				C3F1021F1E6F498600EB1B4E /* AppDelegate.swift */,
 				C3F102211E6F498600EB1B4E /* MasterViewController.swift */,
 				C3F102231E6F498600EB1B4E /* DetailViewController.swift */,
+				C3F102851E79BDAF00EB1B4E /* Survey.swift */,
+				C3E555601E92F09300AB01E9 /* SurveyTableViewCell.swift */,
+				C3F102871E79C62000EB1B4E /* RepeatImageData.swift */,
+				C3F103211E7B774C00EB1B4E /* RepeatImageDataViewCell.swift */,
+				C34C60811E8313E000B90FD9 /* KeywordData.swift */,
+				C34C607F1E83017F00B90FD9 /* KeywordTableViewCell.swift */,
+				C3F102891E79CFB500EB1B4E /* LocationData.swift */,
+				C3F1031F1E7B774C00EB1B4E /* LocationDataTableViewCell.swift */,
+				C32A3C1E1EB01B340070066E /* LocationPhotosCollectionViewCell.swift */,
+				C32A3C221EB2951C0070066E /* MLPTeamTableViewCell.swift */,
+				C32A3C201EB290650070066E /* TeamTableViewController.swift */,
+				C32A3C241EB2D74F0070066E /* TeamNames.swift */,
 				C3F102251E6F498600EB1B4E /* Main.storyboard */,
-				C3F102281E6F498600EB1B4E /* Assets.xcassets */,
+				C3F1027F1E6FAE0900EB1B4E /* Assets.xcassets */,
 				C3F1022A1E6F498600EB1B4E /* LaunchScreen.storyboard */,
 				C3F1022D1E6F498700EB1B4E /* Info.plist */,
+				C3973D101E7B7A1E004C82DB /* TemplateForTableViewController.swift */,
+				C3973D121E7B7A3B004C82DB /* TemplateForTableViewCell.swift */,
 			);
 			path = "Survey Data";
 			sourceTree = "<group>";
@@ -196,7 +250,13 @@
 				TargetAttributes = {
 					C3F1021B1E6F498600EB1B4E = {
 						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 943883D2U7;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Maps.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 					C3F102311E6F498700EB1B4E = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -236,7 +296,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C3F1022C1E6F498600EB1B4E /* LaunchScreen.storyboard in Resources */,
-				C3F102291E6F498600EB1B4E /* Assets.xcassets in Resources */,
+				C3F102801E6FAE0900EB1B4E /* Assets.xcassets in Resources */,
 				C3F102271E6F498600EB1B4E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -262,9 +322,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3F103241E7B774C00EB1B4E /* RepeatImageDataViewCell.swift in Sources */,
+				C3F1028A1E79CFB500EB1B4E /* LocationData.swift in Sources */,
 				C3F102241E6F498600EB1B4E /* DetailViewController.swift in Sources */,
+				C3E555611E92F09300AB01E9 /* SurveyTableViewCell.swift in Sources */,
+				C34C60821E8313E000B90FD9 /* KeywordData.swift in Sources */,
+				C3F102861E79BDAF00EB1B4E /* Survey.swift in Sources */,
 				C3F102221E6F498600EB1B4E /* MasterViewController.swift in Sources */,
+				C3973D131E7B7A3B004C82DB /* TemplateForTableViewCell.swift in Sources */,
+				C32A3C251EB2D74F0070066E /* TeamNames.swift in Sources */,
+				C32A3C231EB2951C0070066E /* MLPTeamTableViewCell.swift in Sources */,
+				C32A3C1F1EB01B340070066E /* LocationPhotosCollectionViewCell.swift in Sources */,
+				C32A3C211EB290650070066E /* TeamTableViewController.swift in Sources */,
+				C3973D111E7B7A1E004C82DB /* TemplateForTableViewController.swift in Sources */,
+				C3F103221E7B774C00EB1B4E /* LocationDataTableViewCell.swift in Sources */,
+				C3F102881E79C62000EB1B4E /* RepeatImageData.swift in Sources */,
 				C3F102201E6F498600EB1B4E /* AppDelegate.swift in Sources */,
+				C34C60801E83017F00B90FD9 /* KeywordTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,6 +490,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 943883D2U7;
 				INFOPLIST_FILE = "Survey Data/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "MLP.Survey-Data";
@@ -428,6 +503,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 943883D2U7;
 				INFOPLIST_FILE = "Survey Data/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "MLP.Survey-Data";
@@ -509,6 +585,7 @@
 				C3F102481E6F498700EB1B4E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C3F102491E6F498700EB1B4E /* Build configuration list for PBXNativeTarget "Survey DataTests" */ = {
 			isa = XCConfigurationList;
@@ -517,6 +594,7 @@
 				C3F1024B1E6F498700EB1B4E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C3F1024C1E6F498700EB1B4E /* Build configuration list for PBXNativeTarget "Survey DataUITests" */ = {
 			isa = XCConfigurationList;
@@ -525,6 +603,7 @@
 				C3F1024E1E6F498700EB1B4E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

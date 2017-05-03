@@ -24,8 +24,10 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         selectedPeople = selectedPeople.sorted(by:<)
-        for index in 0...selectedPeople.count-1 {
+        if selectedPeople.count != 0 {
+            for index in 0...selectedPeople.count-1 {
             selectedPeople[index] = order[selectedPeople[index]]!
+            }
         }
     }
     @IBOutlet weak var navigation: UINavigationItem!
@@ -44,7 +46,37 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
         for index in 0...mlpTeam.count-1 {
             order[lastNames[index]] = mlpTeam[index]
         }
-        
+        for people in selectedPeople {
+            if mlpTeam.index(of: people) != nil {
+                teamTable.selectRow(at: IndexPath(row: mlpTeam.index(of: people)!, section: 0), animated: true, scrollPosition: .none)
+            }
+            else {
+                mlpTeam.insert(people, at: 0)
+                let split = people.characters.split(separator: " ")
+                let newLastName = String(split.suffix(1).joined(separator: [" "]))
+                
+                lastNames.insert(newLastName, at: 0)
+                
+                for index in 0...mlpTeam.count-1 {
+                    order[lastNames[index]] = mlpTeam[index]
+                }
+                alphabetSortLastNames()
+                newName.text = ""
+                teamTable.reloadData()
+                names.mlpTeam = mlpTeam
+                names.lastNames = lastNames
+                saveNames()
+                teamTable.selectRow(at: IndexPath(row: mlpTeam.index(of: people)!, section: 0), animated: true, scrollPosition: .none)
+            }
+        }
+        if selectedPeople.count != 0 {
+            for index in 0...selectedPeople.count-1 {
+            let split = selectedPeople[index].characters.split(separator: " ")
+            let newLastName = String(split.suffix(1).joined(separator: [" "]))
+            selectedPeople[index] = newLastName
+            }
+        }
+                
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -55,22 +87,23 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
         navigation.rightBarButtonItem = addButton
         
         newName.returnKeyType = UIReturnKeyType.go
+        
+        self.hideKeyboardWhenTappedAround() 
     }
     func insertNewTeamMember(_ sender: Any) {
         if newName.text != "" {
-            
-        }
-        mlpTeam.insert(newName.text!, at: 0)
-        let split = newName.text?.characters.split(separator: " ")
-        let newLastName = String(split!.suffix(1).joined(separator: [" "]))
+            mlpTeam.insert(newName.text!, at: 0)
+            let split = newName.text?.characters.split(separator: " ")
+            let newLastName = String(split!.suffix(1).joined(separator: [" "]))
 
-        lastNames.insert(newLastName, at: 0)
-        alphabetSortLastNames()
-        newName.text = ""
-        teamTable.reloadData()
-        names.mlpTeam = mlpTeam
-        names.lastNames = lastNames
-        saveNames()
+            lastNames.insert(newLastName, at: 0)
+            alphabetSortLastNames()
+            newName.text = ""
+            teamTable.reloadData()
+            names.mlpTeam = mlpTeam
+            names.lastNames = lastNames
+            saveNames()
+        }
     }
     func alphabetSortLastNames(){
         var sortedNames = Array(order.keys).sorted(by:<)
@@ -172,11 +205,5 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     private func loadNames() -> TeamNames? {
         return NSKeyedUnarchiver.unarchiveObject(withFile: TeamNames.ArchiveURL.path) as? TeamNames
-    }
-}
-
-extension Dictionary where Value: Equatable {
-    func allKeys(forValue val: Value) -> [Key] {
-        return self.filter { $1 == val }.map { $0.0 }
     }
 }

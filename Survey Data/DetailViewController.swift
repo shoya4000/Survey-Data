@@ -11,7 +11,7 @@ import MapKit
 import CoreLocation
 import os.log
 
-class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate, CLLocationManagerDelegate, UITextViewDelegate {
+class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate, CLLocationManagerDelegate, UITextViewDelegate, UIScrollViewDelegate {
 
     //MARK: Instantiate data
     var survey: Survey?
@@ -124,9 +124,13 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         if segue.identifier == "popoverSegue" {
-            let popoverViewController = segue.destination
+            view.endEditing(true)
+            let popoverViewController = segue.destination as! TeamTableViewController
             popoverViewController.modalPresentationStyle = UIModalPresentationStyle.popover
             popoverViewController.popoverPresentationController!.delegate = self as? UIPopoverPresentationControllerDelegate
+            if survey?.hikingParty != nil {
+                popoverViewController.selectedPeople = (survey?.hikingParty)!
+            }
         }
         else {
             guard let button = sender as? UIBarButtonItem, button === saveButton else {
@@ -146,19 +150,9 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBAction func unwindToDetailView(sender:UIStoryboardSegue){
         if let sourceViewController = sender.source as? TeamTableViewController {
             let hikingParty = sourceViewController.selectedPeople
-            if survey?.hikingParty == nil {
-                survey?.hikingParty = ""
-            }
-            else {
-                survey?.hikingParty = (survey?.hikingParty)! + ","
-            }
-            for names in hikingParty {
-                survey?.hikingParty = (survey?.hikingParty)! + " "
-                survey?.hikingParty = (survey?.hikingParty)! + names
-                survey?.hikingParty = (survey?.hikingParty)! + ","
-            }
-            survey?.hikingParty = survey?.hikingParty?.substring(to: (survey?.hikingParty?.index(before: (survey?.hikingParty?.endIndex)!))!)
-            hikingDetails.text = survey?.hikingParty
+            survey?.hikingParty = hikingParty
+            hikingDetails.text = hikingParty.joined(separator: ", ")
+            hikingDetails.resignFirstResponder()
         }
     }
     
@@ -202,9 +196,17 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func configureView() {
         // Update the user interface for the detail item.
     }
+    @IBOutlet weak var scrollView: UIScrollView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        /*if UIScreen.main.bounds.width/1024 < 0.5 {
+            self.scrollView.minimumZoomScale = UIScreen.main.bounds.width/1024
+            self.scrollView.maximumZoomScale = 1.0
+            scrollView.delegate = self as UIScrollViewDelegate
+        }*/
+        
         // Handle the text field’s user input through delegate callbacks.
         HistoricSurveyName.delegate = self as UITextFieldDelegate
         SurveyYear.delegate = self as UITextFieldDelegate
@@ -314,7 +316,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 finishTime.text = ""
             }
             
-            hikingDetails.text = survey.hikingParty
+            hikingDetails.text = survey.hikingParty?.joined(separator: ", ")
             pilotName.text = survey.pilot
             rwCallSign.text = survey.rwCallSign
             
@@ -500,6 +502,10 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         narrativeIllustration.addGestureRecognizer(tapGesture)
         // make sure imageView can be interacted with by user
         narrativeIllustration.isUserInteractionEnabled = true
+        
+        self.hideKeyboardWhenTappedAround()
+
+        self.view.transform = CGAffineTransform.identity.scaledBy(x: UIScreen.main.bounds.width/1024, y: UIScreen.main.bounds.height/1366)
         
         // Do any additional setup after loading the view, typically from a nib.
         self.configureView()
@@ -1413,9 +1419,6 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             updateAllLonFields()
         }
         
-        if textField == self.hikingDetails {
-            survey?.hikingParty = hikingDetails.text
-        }
         if textField == self.pilotName {
             survey?.pilot = pilotName.text
         }
@@ -1551,8 +1554,8 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView == self.stationNarrative {
             survey?.stationNarrative = stationNarrative.text
-            if (survey?.author == nil || survey?.author == "") && survey?.hikingParty != nil && textView.text != "" {
-                let possibleAuthors = survey?.hikingParty?.characters.split(separator: ",").map(String.init)
+            if survey?.hikingParty != nil && textView.text != "" {
+                let possibleAuthors = survey?.hikingParty
                 let alert = UIAlertController(title: "Author?", message: "Who authored this narrative?", preferredStyle: UIAlertControllerStyle.alert)
                 
                 // add the actions (buttons)
@@ -1562,6 +1565,8 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
                         self.stationNarrative.text = self.survey?.stationNarrative
                     }))
                 }
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+                }))
                 // show the alert
                 present(alert, animated: true, completion: nil)
             }
@@ -1569,8 +1574,8 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         if textView == self.weatherNarrative {
             survey?.weatherNarrative = weatherNarrative.text
-            if (survey?.author == nil || survey?.author == "") && survey?.hikingParty != nil && textView.text != "" {
-                let possibleAuthors = survey?.hikingParty?.characters.split(separator: ",").map(String.init)
+            if survey?.hikingParty != nil && textView.text != "" {
+                let possibleAuthors = survey?.hikingParty
                 let alert = UIAlertController(title: "Author?", message: "Who authored this narrative?", preferredStyle: UIAlertControllerStyle.alert)
                 
                 // add the actions (buttons)
@@ -1580,6 +1585,8 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
                         self.weatherNarrative.text = self.survey?.weatherNarrative
                     }))
                 }
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+                }))
                 // show the alert
                 present(alert, animated: true, completion: nil)
             }
@@ -1591,8 +1598,8 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let cell = LocationDataTable.cellForRow(at: indexPath!) as! LocationDataTableViewCell
             if textView == cell.LocationNarrative {
                 survey?.locationsData?[(indexPath?.row)!].locationNarrative = textView.text!
-                if (survey?.author == nil || survey?.author == "") && survey?.hikingParty != nil && textView.text != ""  {
-                    let possibleAuthors = survey?.hikingParty?.characters.split(separator: ",").map(String.init)
+                if survey?.hikingParty != nil && textView.text != ""  {
+                    let possibleAuthors = survey?.hikingParty
                     let alert = UIAlertController(title: "Author?", message: "Who authored this narrative?", preferredStyle: UIAlertControllerStyle.alert)
                     
                     // add the actions (buttons)
@@ -1602,6 +1609,8 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
                             textView.text = self.survey?.locationsData?[(indexPath?.row)!].locationNarrative
                         }))
                     }
+                    alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+                    }))
                     // show the alert
                     present(alert, animated: true, completion: nil)
                 }
@@ -1612,6 +1621,47 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func textFieldDidBeginEditing(_ textField: UITextField) {
         if textField == self.hikingDetails {
             performSegue(withIdentifier: "popoverSegue", sender: nil)
+        }
+        if textField == self.author {
+            if survey?.hikingParty != nil {
+                let possibleAuthors = survey?.hikingParty
+                let alert = UIAlertController(title: "Author?", message: "Who was the primary author of this document?", preferredStyle: UIAlertControllerStyle.alert)
+                
+                // add the actions (buttons)
+                for author in possibleAuthors! {
+                    alert.addAction(UIAlertAction(title: author, style: .default, handler: { (action: UIAlertAction!) in
+                        self.survey?.author = author
+                        self.author.text = self.survey?.author
+                    }))
+                }
+                alert.addAction(UIAlertAction(title: "Clear", style: .cancel, handler: { (action: UIAlertAction!) in
+                    self.survey?.author = ""
+                    self.author.text = ""
+
+                }))
+                // show the alert
+                present(alert, animated: true, completion: nil)
+            }
+        }
+        if textField == self.photographer {
+            if survey?.hikingParty != nil {
+                let possiblePhotgraphers = survey?.hikingParty
+                let alert = UIAlertController(title: "Photographer?", message: "Who was the primary photographer?", preferredStyle: UIAlertControllerStyle.alert)
+                
+                // add the actions (buttons)
+                for photographer in possiblePhotgraphers! {
+                    alert.addAction(UIAlertAction(title: photographer, style: .default, handler: { (action: UIAlertAction!) in
+                        self.survey?.photographer = photographer
+                        self.photographer.text = self.survey?.photographer
+                    }))
+                }
+                alert.addAction(UIAlertAction(title: "Clear", style: .cancel, handler: { (action: UIAlertAction!) in
+                    self.survey?.photographer = ""
+                    self.photographer.text = ""
+                }))
+                // show the alert
+                present(alert, animated: true, completion: nil)
+            }
         }
         
         textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
@@ -1640,6 +1690,10 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         updateAllLonFields()
         narrativeMap.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
+    }
+    
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.view
     }
 }
 
@@ -1696,3 +1750,15 @@ extension UIView {
         NSLayoutConstraint.activate([leadingConstraint, trailingConstraint, topConstraint, bottomConstraint])
     }
 } // http://stackoverflow.com/questions/27153181/how-do-you-make-a-background-image-scale-to-screen-size-in-swift
+
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}//http://stackoverflow.com/questions/24126678/close-ios-keyboard-by-touching-anywhere-using-swift

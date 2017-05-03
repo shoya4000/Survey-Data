@@ -29,7 +29,7 @@ class MasterViewController: UITableViewController {
         sample.finishTime = dateFormatter.date(from: SampleFinishTime)! as NSDate
         sample.location = DMMtoDD(latDeg: 52, latMin: 21.378, latDir: "N", longDeg: 117, longMin: 13.677, longDir: "W")
         
-        sample.hikingParty = "Rick Arthur, Vladka Lackova-Gat, Tanya Taggart-Hodge"
+        sample.hikingParty = ["Rick Arthur", "Vladka Lackova-Gat", "Tanya Taggart-Hodge"]
         sample.pilot = "Paul Kendall"
         sample.rwCallSign = "PTG"
         

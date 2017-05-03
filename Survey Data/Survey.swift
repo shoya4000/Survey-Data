@@ -26,7 +26,7 @@ class Survey: NSObject, NSCoding {
     
     //MARK: Party Info
     
-    var hikingParty: String?
+    var hikingParty: Array<String>?
     var pilot: String?
     var rwCallSign: String?
     
@@ -184,7 +184,7 @@ class Survey: NSObject, NSCoding {
     }
     
     //MARK: Initialize with all values
-    init(historicSurvey: String, year: Int, stationName: String, repeatDate: NSDate?, finishTime: NSDate?, location: CLLocationCoordinate2D?, hikingParty: String?, pilot: String?, rwCallSign: String?, averageWindSpeed: Double?, temperature: Double?, barometricPressure: Double?, maximumGustSpeed: Double?, relativeHumidity: Double?, wetBulbReading: Double?, iPad: Bool?, locOther: String?, camera1: Bool?, camera2: Bool?, camOther: String?, elevationMetres: Double?, elevationComments: String?, cardNumber: Int?, gpsActive: Bool?, repeatImages: Array<RepeatImageData>?, stationNarrative: String?, illustration: Bool?, illustrationImage: UIImage?, weatherNarrative: String?, keywords: Array<KeywordData>?, locationsData: Array<LocationData>?, author: String?, photographer: String?) {
+    init(historicSurvey: String, year: Int, stationName: String, repeatDate: NSDate?, finishTime: NSDate?, location: CLLocationCoordinate2D?, hikingParty: Array<String>?, pilot: String?, rwCallSign: String?, averageWindSpeed: Double?, temperature: Double?, barometricPressure: Double?, maximumGustSpeed: Double?, relativeHumidity: Double?, wetBulbReading: Double?, iPad: Bool?, locOther: String?, camera1: Bool?, camera2: Bool?, camOther: String?, elevationMetres: Double?, elevationComments: String?, cardNumber: Int?, gpsActive: Bool?, repeatImages: Array<RepeatImageData>?, stationNarrative: String?, illustration: Bool?, illustrationImage: UIImage?, weatherNarrative: String?, keywords: Array<KeywordData>?, locationsData: Array<LocationData>?, author: String?, photographer: String?) {
         self.historicSurvey = historicSurvey
         self.year = year
         self.stationName = stationName
@@ -394,7 +394,7 @@ class Survey: NSObject, NSCoding {
         location.latitude = aDecoder.decodeDouble(forKey: PropertyKey.locationLat)
         location.longitude = aDecoder.decodeDouble(forKey: PropertyKey.locationLon)
         
-        let hikingParty = aDecoder.decodeObject(forKey: PropertyKey.hikingParty) as? String
+        let hikingParty = aDecoder.decodeObject(forKey: PropertyKey.hikingParty) as? Array<String>
         let pilot = aDecoder.decodeObject(forKey: PropertyKey.pilot) as? String
         let rwCallSign = aDecoder.decodeObject(forKey: PropertyKey.rwCallSign) as? String
         

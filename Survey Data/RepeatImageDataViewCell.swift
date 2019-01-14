@@ -15,6 +15,7 @@ class RepeatImageDataViewCell: UITableViewCell {
     @IBOutlet weak var originalPhotoNumberField: UILabel!
     @IBOutlet weak var repeatImageNumberField: UILabel!
     @IBOutlet weak var azimuthField: UILabel!
+    @IBOutlet weak var notesField: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

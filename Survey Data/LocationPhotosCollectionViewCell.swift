@@ -15,7 +15,7 @@ class LocationPhotosCollectionViewCell: UICollectionViewCell {
         imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 202, height: 202))
         super.init(frame: frame)
         
-        imageView.contentMode = UIViewContentMode.scaleAspectFit
+        imageView.contentMode = UIView.ContentMode.scaleAspectFit
         contentView.addSubview(imageView)
     }
     

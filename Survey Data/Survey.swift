@@ -61,6 +61,7 @@ class Survey: NSObject, NSCoding {
     var stationNarrative: String?
     var illustration: Bool?
     var illustrationImage: UIImage?
+    var illustrationImageAsData: Data?
     
     //MARK: Weather Narrative
     var weatherNarrative: String?
@@ -149,6 +150,7 @@ class Survey: NSObject, NSCoding {
         static let stationNarrative = "stationNarrative"
         static let illustration = "illustration"
         static let illustrationImage = "illustrationImage"
+        static let illustrationImageAsData = "illustrationImageAsData"
         
         //MARK: Weather Narrative
         static let weatherNarrative = "weatherNarrative"
@@ -184,7 +186,7 @@ class Survey: NSObject, NSCoding {
     }
     
     //MARK: Initialize with all values
-    init(historicSurvey: String, year: Int, stationName: String, repeatDate: NSDate?, finishTime: NSDate?, location: CLLocationCoordinate2D?, hikingParty: Array<String>?, pilot: String?, rwCallSign: String?, averageWindSpeed: Double?, temperature: Double?, barometricPressure: Double?, maximumGustSpeed: Double?, relativeHumidity: Double?, wetBulbReading: Double?, iPad: Bool?, locOther: String?, camera1: Bool?, camera2: Bool?, camOther: String?, elevationMetres: Double?, elevationComments: String?, cardNumber: Int?, gpsActive: Bool?, repeatImages: Array<RepeatImageData>?, stationNarrative: String?, illustration: Bool?, illustrationImage: UIImage?, weatherNarrative: String?, keywords: Array<KeywordData>?, locationsData: Array<LocationData>?, author: String?, photographer: String?) {
+    init(historicSurvey: String, year: Int, stationName: String, repeatDate: NSDate?, finishTime: NSDate?, location: CLLocationCoordinate2D?, hikingParty: Array<String>?, pilot: String?, rwCallSign: String?, averageWindSpeed: Double?, temperature: Double?, barometricPressure: Double?, maximumGustSpeed: Double?, relativeHumidity: Double?, wetBulbReading: Double?, iPad: Bool?, locOther: String?, camera1: Bool?, camera2: Bool?, camOther: String?, elevationMetres: Double?, elevationComments: String?, cardNumber: Int?, gpsActive: Bool?, repeatImages: Array<RepeatImageData>?, stationNarrative: String?, illustration: Bool?, illustrationImage: UIImage?, illustrationImageAsData: Data?, weatherNarrative: String?, keywords: Array<KeywordData>?, locationsData: Array<LocationData>?, author: String?, photographer: String?) {
         self.historicSurvey = historicSurvey
         self.year = year
         self.stationName = stationName
@@ -220,6 +222,7 @@ class Survey: NSObject, NSCoding {
         self.stationNarrative = stationNarrative
         self.illustration = illustration
         self.illustrationImage = illustrationImage
+        self.illustrationImageAsData = illustrationImageAsData
         
         self.weatherNarrative = weatherNarrative
         
@@ -282,6 +285,7 @@ class Survey: NSObject, NSCoding {
         stationNarrative = copy.stationNarrative
         illustration = copy.illustration
         illustrationImage = copy.illustrationImage
+        illustrationImageAsData = copy.illustrationImageAsData
         
         //MARK: Weather Narrative
         weatherNarrative = copy.weatherNarrative
@@ -361,6 +365,7 @@ class Survey: NSObject, NSCoding {
         aCoder.encode(stationNarrative, forKey: PropertyKey.stationNarrative)
         aCoder.encode(illustration!, forKey: PropertyKey.illustration)
         aCoder.encode(illustrationImage, forKey: PropertyKey.illustrationImage)
+        aCoder.encode(illustrationImageAsData, forKey: PropertyKey.illustrationImageAsData)
         
         aCoder.encode(weatherNarrative, forKey: PropertyKey.weatherNarrative)
         
@@ -375,15 +380,27 @@ class Survey: NSObject, NSCoding {
     required convenience init?(coder aDecoder: NSCoder) {
         // The historicSurvey, year, and stationName are required. If we cannot decode them, the initializer should fail.
         guard let historicSurvey = aDecoder.decodeObject(forKey: PropertyKey.historicSurvey) as? String else {
-            os_log("Unable to decode Survey Name", log: OSLog.default, type: .debug)
+            if #available(iOS 10.0, *) {
+                os_log("Unable to decode Survey Name", log: OSLog.default, type: .debug)
+            } else {
+                // Fallback on earlier versions
+            }
             return nil
         }
         guard let year = aDecoder.decodeInteger(forKey: PropertyKey.year) as? Int else {
-            os_log("Unable to decode Survey Year", log: OSLog.default, type: .debug)
+            if #available(iOS 10.0, *) {
+                os_log("Unable to decode Survey Year", log: OSLog.default, type: .debug)
+            } else {
+                // Fallback on earlier versions
+            }
             return nil
         }
         guard let stationName = aDecoder.decodeObject(forKey: PropertyKey.stationName) as? String  else {
-            os_log("Unable to decode Station Name", log: OSLog.default, type: .debug)
+            if #available(iOS 10.0, *) {
+                os_log("Unable to decode Station Name", log: OSLog.default, type: .debug)
+            } else {
+                // Fallback on earlier versions
+            }
             return nil
         }
         
@@ -422,6 +439,7 @@ class Survey: NSObject, NSCoding {
         let stationNarrative = aDecoder.decodeObject(forKey: PropertyKey.stationNarrative) as? String
         let illustration = aDecoder.decodeBool(forKey: PropertyKey.illustration)
         let illustrationImage = aDecoder.decodeObject(forKey: PropertyKey.illustrationImage) as? UIImage
+        let illustrationImageAsData = aDecoder.decodeObject(forKey: PropertyKey.illustrationImageAsData) as? Data
         
         let weatherNarrative = aDecoder.decodeObject(forKey: PropertyKey.weatherNarrative) as? String
         
@@ -434,6 +452,6 @@ class Survey: NSObject, NSCoding {
         
         
         // Must call designated initializer.
-        self.init(historicSurvey: historicSurvey, year: year, stationName: stationName, repeatDate: repeatDate, finishTime: finishTime, location: location, hikingParty: hikingParty, pilot: pilot, rwCallSign: rwCallSign, averageWindSpeed: averageWindSpeed, temperature: temperature, barometricPressure: barometricPressure, maximumGustSpeed: maximumGustSpeed, relativeHumidity: relativeHumidity, wetBulbReading: wetBulbReading, iPad: iPad, locOther: locOther, camera1: camera1, camera2: camera2, camOther: camOther, elevationMetres: elevationMetres, elevationComments: elevationComments, cardNumber: cardNumber, gpsActive: gpsActive, repeatImages: repeatImages, stationNarrative: stationNarrative, illustration: illustration, illustrationImage: illustrationImage, weatherNarrative: weatherNarrative, keywords: keywords, locationsData: locationsData, author: author, photographer: photographer)
+        self.init(historicSurvey: historicSurvey, year: year, stationName: stationName, repeatDate: repeatDate, finishTime: finishTime, location: location, hikingParty: hikingParty, pilot: pilot, rwCallSign: rwCallSign, averageWindSpeed: averageWindSpeed, temperature: temperature, barometricPressure: barometricPressure, maximumGustSpeed: maximumGustSpeed, relativeHumidity: relativeHumidity, wetBulbReading: wetBulbReading, iPad: iPad, locOther: locOther, camera1: camera1, camera2: camera2, camOther: camOther, elevationMetres: elevationMetres, elevationComments: elevationComments, cardNumber: cardNumber, gpsActive: gpsActive, repeatImages: repeatImages, stationNarrative: stationNarrative, illustration: illustration, illustrationImage: illustrationImage, illustrationImageAsData: illustrationImageAsData, weatherNarrative: weatherNarrative, keywords: keywords, locationsData: locationsData, author: author, photographer: photographer)
     }
 }

@@ -13,11 +13,95 @@ import os.log
 
 class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate, CLLocationManagerDelegate, UITextViewDelegate, UIScrollViewDelegate {
 
-    //MARK: Instantiate data
+    //MARK: Instantiate Foundational Elements
     var survey: Survey?
-    var resetSurvey: Survey?
     let locationManager = CLLocationManager()
+    func locationManager(_: CLLocationManager, didFailWithError: Error){
+        let alert = UIAlertController(title: "GPS unavailable", message: "GPS has failed", preferredStyle: UIAlertController.Style.alert)
+
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { (action: UIAlertAction!) in
+        }))
+        
+        present(alert, animated: true, completion: nil)
+        
+        return
+    }
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
+    {
+        if locations.last != nil{
+            let location = locations.last! as CLLocation
+            let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        
+            if isAddLocationGPSClicked == true {
+                survey?.locationsData?[rowSelectedInLocations].gps = center
+                LocationDataTable.reloadData()
+                isAddLocationGPSClicked = false
+            }
+            else {
+                let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+                survey?.location = center
+                updateAllLatFields()
+                updateAllLonFields()
+                narrativeMap.setRegion(region, animated: true)
+            }
+        }
+        save()
+        locationManager.stopUpdatingLocation()
+    }
+    var goToSurveyOnMap = false
     
+    @IBOutlet weak var goToMap: UIButton!
+    @IBAction func goToSurveyOnMap(_ sender: Any) {
+        goToSurveyOnMap = true
+        save()
+    }
+    var repeatImagesData = [RepeatImageData]()
+    
+    var categories = ["1-Urban or Built-up", "2-Agricultural Land", "3-Rangeland", "4-Forest Land", "5-Water", "6-Wetland", "7-Barren Land", "8-Alpine Tundra","9-Perennial Snow/Ice", "Fire", "Change", "Artifacts"]
+    var keywords = [["11-Residential", "12-Commercial", "13-Industrial", "→ Forestry", "→ Mining", "→ Hydrocarbons", "→ Electricity", "14-Transportation, communications, and utilities", "15-Industrial and Commercial Complexes", "16-Mixed urban or built-up land", "17-Other urban or built-up land"], ["21-Cropland and pasture", "11-Orchards, groves, vineyards, nurseries, and ornamental areas", "23-Confined feeding operations", "24-Other Agricultural land"] , ["31-Herbaceous Rangeland", "32-Shrub and Brush Rangeland", "33-Mixed Rangeland"] , ["41-Deciduous Forest Land", "42-Evergreen Forest Land", "43-Mixed Forest Land"] , ["51-Streams and Canals", "52-Lakes", "53-Reservoirs", "54-Bays and Estuaries"] , ["61-Forested Wetland", "62-Non-Forested Wetland"] , ["71-Dry Salt Flats", "72-Beaches", "73-Sandy areas other than beaches", "74-Strip mines, quarries, and gravel pits", "76-Transitional areas", "77-Mixed Barren Land"] , ["81-Shrub and Bush Tundra", "82-Herbaceous Tundra", "83-Bare Ground Tundra", "84-Wet Tundra", "85-Mixed Tundra"] , ["91-Perennial Snowfields", "92-Glaciers"] , ["Fire"], ["Change advance", "Change Retreat", "Change Encroach", "Change Composition", "Change in Water"] , ["Human Subject", "Marker", "Equipment", "Historic Structure"]]
+    var categoryToShow = [String]()
+    var categoryPicked = "1-Urban or Built-up"
+    var keywordpicked = "11-Residential"
+    var KeywordsData = [KeywordData]()
+    
+    var storedOffsets = [Int: CGFloat]()
+    var LocationsData = [LocationData()]
+    //rowSelectedInLocations keep track of rowselected for adding photos
+    var rowSelectedInLocations = 0
+    
+        //MARK: Instantiate Buttons
+    var checkedBox = UIImage(named: "checked-checkbox-128")
+    var uncheckedBox = UIImage(named: "unchecked-checkbox-128")
+    
+    let noImageSelected = UIImage(named: "no image selected")
+    
+    var isBoxClicked:Bool!
+    var isBoxClicked3:Bool!
+    var isBoxClicked4:Bool!
+    var isBoxClicked5:Bool!
+    var isBoxClicked6:Bool!
+    var isBoxClicked7:Bool!
+    
+        //MARK: Instantiate add buttons
+    var isAddRepeatDataClicked:Bool!
+    
+    var isAddKeywordButtonClicked:Bool!
+    var isAddCustomKeywordClicked:Bool!
+    
+    var isAddLocationClicked:Bool!
+    var isAddLocationGPSClicked:Bool!
+    var isAddLocationPhotoClicked:Bool!
+    var isALocationPhotoClicked:Bool!
+    var locationPhotoClickedRow:Int!
+    var locationPhotoClickedIndexPath:Int!
+    
+    let datePicker = UIDatePicker()
+    let timePicker = UIDatePicker()
+    @objc func doneDatePickerPressed(){
+        self.view.endEditing(true)
+    }
+    
+    //MARK: IBOutlets - Link code to objects in Interface Builder
     @IBOutlet weak var HistoricSurveyName: UITextField!
     @IBOutlet weak var SurveyYear: UITextField!
     @IBOutlet weak var StationName: UITextField!
@@ -26,13 +110,23 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var startTime: UITextField!
     @IBOutlet weak var finishTime: UITextField!
     
-    func updateFinishTime() {
-        survey?.finishTime = NSDate()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "h:mm a"
-        finishTime.text = dateFormatter.string(from: survey!.finishTime! as Date)
-    }
-
+    @IBOutlet weak var DDLat: UITextField!
+    @IBOutlet weak var DDLong: UITextField!
+    @IBOutlet weak var DMMLatDeg: UITextField!
+    @IBOutlet weak var DMMLatMin: UITextField!
+    @IBOutlet weak var DMMLatDir: UITextField!
+    @IBOutlet weak var DMMLonDeg: UITextField!
+    @IBOutlet weak var DMMLonMin: UITextField!
+    @IBOutlet weak var DMMLonDir: UITextField!
+    @IBOutlet weak var DMSLatDeg: UITextField!
+    @IBOutlet weak var DMSLatMin: UITextField!
+    @IBOutlet weak var DMSLatSec: UITextField!
+    @IBOutlet weak var DMSLatDir: UITextField!
+    @IBOutlet weak var DMSLonDeg: UITextField!
+    @IBOutlet weak var DMSLonMin: UITextField!
+    @IBOutlet weak var DMSLonSec: UITextField!
+    @IBOutlet weak var DMSLonDir: UITextField!
+    
     @IBOutlet weak var hikingDetails: UITextField!
     @IBOutlet weak var pilotName: UITextField!
     @IBOutlet weak var rwCallSign: UITextField!
@@ -55,6 +149,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var cardNumber: UITextField!
     
     @IBOutlet weak var stationNarrative: UITextView!
+    @IBOutlet weak var narrativeIllustration: UIImageView!
     @IBOutlet weak var narrativeMap: MKMapView!
     
     @IBOutlet weak var weatherNarrative: UITextView!
@@ -62,64 +157,373 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var author: UITextField!
     @IBOutlet weak var photographer: UITextField!
     
-    //MARK: Save button inputs
-    @IBOutlet weak var saveButton: UIBarButtonItem!
-    @IBAction func saveButtonCheckFinish(_ sender: Any) {
-        askToSave()
-    }
-    @IBOutlet weak var saveButtonBottom: UIBarButtonItem!
-    @IBAction func saveButtonBottomCheckFinish(_ sender: Any) {
-        askToSave()
-    }
-    
-    //MARK: Reset changes to last save
-    @IBAction func discardChanges(_ sender: UIBarButtonItem) {
-        let alert = UIAlertController(title: "Discard Changes?", message: "Would you like to discard recent changes?", preferredStyle: UIAlertControllerStyle.alert)
+    //MARK: getGPS button and action
+    @IBOutlet weak var getGPS: UIButton!
+    @IBAction func getGPSLocation(_ sender: Any) {
+        // Ask for Authorisation from the User.
+        self.locationManager.requestAlwaysAuthorization()
         
-        // add the actions (buttons)
-        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-            self.survey = self.resetSurvey?.copySurvey()
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
         
-            self.CategoryPicker.selectRow(0, inComponent: 0, animated: true)
-            self.CategoryPicker.selectRow(0, inComponent: 1, animated: true)
-            self.viewDidLoad()
-            
-            self.tableView.reloadData()
-            self.KeywordTable.reloadData()
-            self.LocationDataTable.reloadData()
-            self.viewWillAppear(true)
-            self.view.endEditing(true)
-            self.performSegue(withIdentifier: "unwindToMasterView", sender: self.saveButton)
-        }))
-        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
-        }))
-        
-        // show the alert
-        present(alert, animated: true, completion: nil)
-    }
-    
-    func askToSave() {
-        let alert = UIAlertController(title: "Update Finish Time?", message: "Would you like to update the Finish Time?", preferredStyle: UIAlertControllerStyle.alert)
-        
-        // add the actions (buttons)
-        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-            self.updateFinishTime()
-            self.resetSurvey = self.survey?.copySurvey()
-            self.performSegue(withIdentifier: "unwindToMasterView", sender: self.saveButton)
-        }))
-        alert.addAction(UIAlertAction(title: "No", style: .default, handler: { (action: UIAlertAction!) in
-            self.resetSurvey = self.survey?.copySurvey()
-            self.performSegue(withIdentifier: "unwindToMasterView", sender: self.saveButton)
-        }))
-        alert.addAction(UIAlertAction(title: "Cancel Saving", style: .cancel, handler: { (action: UIAlertAction!) in
-        }))
-        
-        // show the alert
-        present(alert, animated: true, completion: nil)
-        
-        return
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self as CLLocationManagerDelegate
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.requestAlwaysAuthorization()
+            locationManager.startUpdatingLocation()
+        }
     }
 
+    //MARK: Autosave
+    func save(){
+        self.performSegue(withIdentifier: "unwindToMasterView", sender: (Any).self)
+    }
+    
+    //MARK: Checkbox Outlets
+    @IBOutlet weak var checkBoxButton: UIButton!
+    //checkBoxButton2 was removed
+    @IBOutlet weak var checkBoxButton3: UIButton!
+    @IBOutlet weak var checkBoxButton4: UIButton!
+    @IBOutlet weak var checkBoxButton5: UIButton!
+    @IBOutlet weak var checkBoxButton6: UIButton!
+    @IBOutlet weak var checkBoxButton7: UIButton!
+    
+    // MARK: Outlets for location data input
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var locationInput: UITextField!
+    @IBOutlet weak var OriginalPhotoNumberInput: UITextField!
+    @IBOutlet weak var RepeatPhotoNumberInput: UITextField!
+    @IBOutlet weak var azimuthInput: UITextField!
+    @IBOutlet weak var notesInput: UITextField!
+    
+    //MARK: Keyword Pickers
+    @IBOutlet weak var CategoryPicker: UIPickerView!
+    @IBOutlet weak var DescriptionBar: UITextField!
+    
+    //MARK: Keyword table outlets and actions
+    @IBOutlet weak var KeywordTable: UITableView!
+    
+    @IBAction func addKeywordToTable(_ sender: Any) {
+        if isAddKeywordButtonClicked == true {
+            isAddKeywordButtonClicked = false
+        }
+        else {
+            isAddKeywordButtonClicked = true
+        }
+        if isAddKeywordButtonClicked == true {
+            if !categoryPicked.isEmpty && !keywordpicked.isEmpty {
+                insertNewKeyword()
+            }
+            isAddKeywordButtonClicked = false
+        }
+    }
+    //Insert selected Keyword
+    func insertNewKeyword() {
+        let newKeywordData = KeywordData(category: categoryPicked, keyword: keywordpicked, comment: DescriptionBar.text!)
+        
+        KeywordsData.insert(newKeywordData!, at: 0)
+        survey?.keywords = KeywordsData
+        let indexPath = IndexPath(row: 0, section: 0)
+        self.KeywordTable.insertRows(at: [indexPath], with: .automatic)
+        save()
+    }
+    
+    //Custom Keyword input
+    @IBOutlet weak var customKeyword: UITextField!
+    //Add a custom Keyword
+    @IBAction func addCustomKeyword(_ sender: Any) {
+        if isAddCustomKeywordClicked == true {
+            isAddCustomKeywordClicked = false
+        }
+        else {
+            isAddCustomKeywordClicked = true
+        }
+        if isAddCustomKeywordClicked == true {
+            if !customKeyword.text!.isEmpty {
+                insertCustomKeyword()
+            }
+            customKeyword.text = ""
+            DescriptionBar.text = ""
+            isAddCustomKeywordClicked = false
+        }
+    }
+    //Insert custom Keyword
+    func insertCustomKeyword() {
+        let newKeywordData = KeywordData(category: "Custom", keyword: customKeyword.text!, comment: DescriptionBar.text!)
+        
+        KeywordsData.insert(newKeywordData!, at: 0)
+        survey?.keywords = KeywordsData
+        let indexPath = IndexPath(row: 0, section: 0)
+        self.KeywordTable.insertRows(at: [indexPath], with: .automatic)
+        save()
+    }
+
+    // MARK: Location Table and Add Action
+    @IBOutlet weak var LocationDataTable: UITableView!
+    //Add location
+    @IBAction func AddLocation(_ sender: Any) {
+        if isAddLocationClicked == true {
+            isAddLocationClicked = false
+        }
+        else {
+            isAddLocationClicked = true
+        }
+        if isAddLocationClicked == true {
+            insertLocation()
+            isAddLocationClicked = false
+        }
+    }
+    func insertLocation() {
+        let newLocationData = LocationData()
+        
+        LocationsData.insert(newLocationData, at: 0)
+        survey?.locationsData = LocationsData
+        let indexPath = IndexPath(row: 0, section: 0)
+        self.LocationDataTable.insertRows(at: [indexPath], with: .automatic)
+        save()
+    }
+    
+    //MARK: Link ScrollView
+    @IBOutlet weak var scrollView: UIScrollView!
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.view
+    }
+    //MARK: @IBActions
+    //MARK: Check box for iPad
+    @IBAction func checkBox(_ sender: Any) {
+        if isBoxClicked == true{
+            isBoxClicked = false
+        }
+        else{
+            isBoxClicked = true
+        }
+        if isBoxClicked == true{
+            checkBoxButton.setImage(checkedBox, for: UIControl.State.normal)
+            survey?.iPad = true
+            save()
+        }
+        else{
+            checkBoxButton.setImage(uncheckedBox, for: UIControl.State.normal)
+            survey?.iPad = false
+            save()
+        }
+    }
+    // MARK: Check box for GPS
+    @IBAction func checkBox5(_ sender: Any) {
+        if isBoxClicked5 == true{
+            isBoxClicked5 = false
+        }
+        else{
+            isBoxClicked5 = true
+        }
+        if isBoxClicked5 == true{
+            checkBoxButton5.setImage(checkedBox, for: UIControl.State.normal)
+            survey?.gpsActive = true
+            save()
+        }
+        else{
+            checkBoxButton5.setImage(uncheckedBox, for: UIControl.State.normal)
+            survey?.gpsActive = false
+            save()
+        }
+    }
+    // MARK: Yes button for selecting an image for station narrative
+    @IBAction func checkBox6(_ sender: Any) {
+        if isBoxClicked6 == true{
+            isBoxClicked6 = false
+        }
+        else{
+            isBoxClicked6 = true
+        }
+        if isBoxClicked6 == true{
+            checkBoxButton6.setImage(checkedBox, for: UIControl.State.normal)
+            
+            // prompt to select image
+            // UIImagePickerController is a view controller that lets a user pick media from their photo library.
+            let imagePickerController = UIImagePickerController()
+            
+            // Make sure ViewController is notified when the user picks an image.
+            imagePickerController.delegate = self
+            imagePickerController.allowsEditing = true
+            
+            let alert = UIAlertController(title: "Image Source?", message: "Would you like to take a new photo, or use one saved on the iPad?", preferredStyle: UIAlertController.Style.alert)
+            
+            // add the actions (buttons)
+            alert.addAction(UIAlertAction(title: "Take new photo", style: .default, handler: { (action: UIAlertAction!) in
+                imagePickerController.sourceType = UIImagePickerController.SourceType.camera
+                self.present(imagePickerController, animated: true, completion: nil)
+            }))
+            alert.addAction(UIAlertAction(title: "Use saved photo", style: .default, handler: { (action: UIAlertAction!) in
+                imagePickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
+                self.present(imagePickerController, animated: true, completion: nil)
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            }))
+            
+            // show the alert
+            present(alert, animated: true, completion: nil)
+            
+            checkBoxButton7.setImage(uncheckedBox, for: UIControl.State.normal)
+            isBoxClicked7 = false
+            survey?.illustration = true
+            save()
+        }
+        else{
+            checkBoxButton6.setImage(uncheckedBox, for: UIControl.State.normal)
+            // if not no image selected, switch to no image selected
+            survey?.illustration = false
+            survey?.illustrationImage = noImageSelected
+            save()
+        }
+    }
+    // MARK: No button for selecting an image for station narrative
+    @IBAction func checkBox7(_ sender: Any) {
+        if isBoxClicked7 == true{
+            isBoxClicked7 = false
+        }
+        else{
+            isBoxClicked7 = true
+        }
+        if isBoxClicked7 == true{
+            checkBoxButton7.setImage(checkedBox, for: UIControl.State.normal)
+            // if not no image selected, switch to no image selected
+            narrativeIllustration.image = noImageSelected
+            
+            checkBoxButton6.setImage(uncheckedBox, for: UIControl.State.normal)
+            isBoxClicked6 = false
+            survey?.illustration = false
+            survey?.illustrationImage = noImageSelected
+            save()
+        }
+        else{
+            checkBoxButton7.setImage(uncheckedBox, for: UIControl.State.normal)
+        }
+    }
+
+    @IBAction func AddLocationGPS(_ sender: Any) {
+        isAddLocationGPSClicked = true
+        let touchPoint = (sender as AnyObject).convert(CGPoint.zero, to: self.LocationDataTable)
+        rowSelectedInLocations = (LocationDataTable.indexPathForRow(at: touchPoint)?.row)!
+        
+        // Ask for Authorisation from the User.
+        self.locationManager.requestAlwaysAuthorization()
+        
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self as CLLocationManagerDelegate
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.requestAlwaysAuthorization()
+            locationManager.startUpdatingLocation()
+        }
+    }
+    
+    //MARK: Add location Photo to view
+    @IBAction func AddLocationPhoto(_ sender: Any) {
+        let touchPoint = (sender as AnyObject).convert(CGPoint.zero, to: self.LocationDataTable)
+        rowSelectedInLocations = (LocationDataTable.indexPathForRow(at: touchPoint)?.row)!
+        
+        if isAddLocationPhotoClicked == true {
+            isAddLocationPhotoClicked = false
+        }
+        else{
+            isAddLocationPhotoClicked = true
+        }
+        if isAddLocationPhotoClicked == true {
+            // prompt to select image
+            // UIImagePickerController is a view controller that lets a user pick media from their photo library.
+            let imagePickerController = UIImagePickerController()
+            
+            // Make sure ViewController is notified when the user picks an image.
+            imagePickerController.delegate = self
+            imagePickerController.allowsEditing = true
+            let alert = UIAlertController(title: "Image Source?", message: "Would you like to take a new photo, or use one saved on the iPad?", preferredStyle: UIAlertController.Style.alert)
+            
+            // add the actions (buttons)
+            alert.addAction(UIAlertAction(title: "Take new photo", style: .default, handler: { (action: UIAlertAction!) in
+                imagePickerController.sourceType = UIImagePickerController.SourceType.camera
+                self.present(imagePickerController, animated: true, completion: nil)
+            }))
+            alert.addAction(UIAlertAction(title: "Use saved photo", style: .default, handler: { (action: UIAlertAction!) in
+                imagePickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
+                self.present(imagePickerController, animated: true, completion: nil)
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            }))
+            
+            // show the alert
+            present(alert, animated: true, completion: nil)
+        }
+    }
+    //MARK: Insert location photo into back data
+    func insertLocationPhoto(selectedImage: UIImage) {
+        if !LocationsData[rowSelectedInLocations].hasPhotos {
+            LocationsData[rowSelectedInLocations].locationPhotosAsData[0] = selectedImage.jpegData(compressionQuality: 0.10)
+        }
+        else {
+            if isALocationPhotoClicked {
+                LocationsData[locationPhotoClickedRow].locationPhotosAsData[locationPhotoClickedIndexPath] = selectedImage.jpegData(compressionQuality: 0.10)
+            }
+            else {
+                LocationsData[rowSelectedInLocations].locationPhotosAsData.insert(selectedImage.jpegData(compressionQuality: 0.10), at: 0)
+            }
+        }
+        LocationsData[rowSelectedInLocations].hasPhotos = true
+        survey?.locationsData?[rowSelectedInLocations].locationPhotosAsData = LocationsData[rowSelectedInLocations].locationPhotosAsData
+        
+        survey?.locationsData?[rowSelectedInLocations].hasPhotos = LocationsData[rowSelectedInLocations].hasPhotos
+        save()
+        
+        LocationDataTable.reloadData()
+        isAddLocationPhotoClicked = false
+        isALocationPhotoClicked = false
+    }
+    
+    //MARK: Actions for adding Repeat Image Data
+    @IBAction func addNewRepeatImageData(_ sender: Any) {
+        if isAddRepeatDataClicked == true {
+            isAddRepeatDataClicked = false
+        }
+        else {
+            isAddRepeatDataClicked = true
+        }
+        if isAddRepeatDataClicked == true {
+            if !locationInput.text!.isEmpty && !OriginalPhotoNumberInput.text!.isEmpty && !RepeatPhotoNumberInput.text!.isEmpty{
+                insertNewRepeatImageData()
+                OriginalPhotoNumberInput.text = ""
+                RepeatPhotoNumberInput.text = ""
+                azimuthInput.text = ""
+                notesInput.text = ""
+            }
+            isAddRepeatDataClicked = false
+        }
+    }
+    func insertNewRepeatImageData() {
+        let newRepeatImageData = RepeatImageData(location: locationInput.text!, originalPhotoNumber: OriginalPhotoNumberInput.text!, repeatPhotoNumber: RepeatPhotoNumberInput.text!, azimuth: Double(azimuthInput.text!), notes: notesInput.text)
+        repeatImagesData.insert(newRepeatImageData!, at: 0)
+        survey?.repeatImages = repeatImagesData
+        let indexPath = IndexPath(row: 0, section: 0)
+        self.tableView.insertRows(at: [indexPath], with: .automatic)
+        save()
+    }
+    
+    //MARK: Return from Hiking Party picker with data
+    @IBAction func unwindToDetailView(sender:UIStoryboardSegue){
+        if let sourceViewController = sender.source as? TeamTableViewController {
+            let hikingParty = sourceViewController.selectedPeople
+            survey?.hikingParty = hikingParty
+            hikingDetails.text = hikingParty.joined(separator: ", ")
+            hikingDetails.resignFirstResponder()
+        }
+        if let sourceViewController = sender.source as? CameraTableViewController {
+            let camera = sourceViewController.selectedCamera
+            survey?.camOther = camera
+            camOtherInput.text = camera
+            camOtherInput.resignFirstResponder()
+        }
+    }
+    
     // This method lets you configure a view controller before it's presented.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
@@ -132,80 +536,20 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 popoverViewController.selectedPeople = (survey?.hikingParty)!
             }
         }
-        else {
-            guard let button = sender as? UIBarButtonItem, button === saveButton else {
-            os_log("The save button was not pressed, cancelling", log: OSLog.default, type: .debug)
-            resetSurvey = survey?.copySurvey()
-            return
-            }
-            // Configure the destination view controller only when the save button is pressed.
-        }
     }
     func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
-        
         // Force popover style
         return UIModalPresentationStyle.none
     }
-    
-    @IBAction func unwindToDetailView(sender:UIStoryboardSegue){
-        if let sourceViewController = sender.source as? TeamTableViewController {
-            let hikingParty = sourceViewController.selectedPeople
-            survey?.hikingParty = hikingParty
-            hikingDetails.text = hikingParty.joined(separator: ", ")
-            hikingDetails.resignFirstResponder()
-        }
-    }
-    
-    //MARK: Instantiate Checkboxes
-    @IBOutlet weak var checkBoxButton: UIButton!
-    @IBOutlet weak var checkBoxButton3: UIButton!
-    @IBOutlet weak var checkBoxButton4: UIButton!
-    @IBOutlet weak var checkBoxButton5: UIButton!
-    @IBOutlet weak var checkBoxButton6: UIButton!
-    @IBOutlet weak var checkBoxButton7: UIButton!
-    
-    var checkedBox = UIImage(named: "checked-checkbox-128")
-    var uncheckedBox = UIImage(named: "unchecked-checkbox-128")
-    
-    var noImageSelected = UIImage(named: "no image selected")
-    
-    var isBoxClicked:Bool!
-    var isBoxClicked2:Bool!
-    var isBoxClicked3:Bool!
-    var isBoxClicked4:Bool!
-    var isBoxClicked5:Bool!
-    var isBoxClicked6:Bool!
-    var isBoxClicked7:Bool!
-    
-    //MARK: Instantiate add buttons
-    var isAddRepeatDataClicked:Bool!
-    
-    var isAddKeywordButtonClicked:Bool!
-    var isAddCustomKeywordClicked:Bool!
-    
-    var isAddLocationClicked:Bool!
-    var isAddLocationPhotoClicked:Bool!
-    var isALocationPhotoClicked:Bool!
-    var locationPhotoClickedRow:Int!
-    var locationPhotoClickedIndexPath:Int!
-    
-    let datePicker = UIDatePicker()
-    let timePicker = UIDatePicker()
     
     //MARK: Load page functions
     func configureView() {
         // Update the user interface for the detail item.
     }
-    @IBOutlet weak var scrollView: UIScrollView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        /*if UIScreen.main.bounds.width/1024 < 0.5 {
-            self.scrollView.minimumZoomScale = UIScreen.main.bounds.width/1024
-            self.scrollView.maximumZoomScale = 1.0
-            scrollView.delegate = self as UIScrollViewDelegate
-        }*/
+        self.navigationController?.navigationBar.isTranslucent = false
         
         // Handle the text field’s user input through delegate callbacks.
         HistoricSurveyName.delegate = self as UITextFieldDelegate
@@ -217,9 +561,14 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         finishTime.delegate = self as UITextFieldDelegate
         
         getGPS.backgroundColor = .clear
-        getGPS.layer.cornerRadius = 5
+        getGPS.layer.cornerRadius = 3
         getGPS.layer.borderWidth = 2
         getGPS.layer.borderColor = UIColor.blue.cgColor
+        
+        goToMap.backgroundColor = .clear
+        goToMap.layer.cornerRadius = 3
+        goToMap.layer.borderWidth = 2
+        goToMap.layer.borderColor = UIColor.blue.cgColor
         
         DDLat.delegate = self as UITextFieldDelegate
         DDLong.delegate = self as UITextFieldDelegate
@@ -259,6 +608,12 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         cardNumber.delegate = self as UITextFieldDelegate
         
+        locationInput.delegate = self as UITextFieldDelegate
+        OriginalPhotoNumberInput.delegate = self as UITextFieldDelegate
+        RepeatPhotoNumberInput.delegate = self as UITextFieldDelegate
+        azimuthInput.delegate = self as UITextFieldDelegate
+        notesInput.delegate = self as UITextFieldDelegate
+        
         stationNarrative.delegate = self as UITextViewDelegate
         weatherNarrative.delegate = self as UITextViewDelegate
         
@@ -275,7 +630,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             if survey.location != nil && survey.location?.latitude != 0 {
                 updateAllLatFields()
                 updateAllLonFields()
-                let span = MKCoordinateSpanMake(0.2,0.2)
+                let span = MKCoordinateSpan.init(latitudeDelta: 0.01,longitudeDelta: 0.01)
                 let region = MKCoordinateRegion(center: survey.location!, span: span)
                 narrativeMap.setRegion(region, animated: true)
                 let annotation = MKPointAnnotation()
@@ -358,25 +713,14 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
             
             if survey.iPad != nil && survey.iPad! {
-                checkBoxButton.setImage(checkedBox, for: UIControlState.normal)
+                checkBoxButton.setImage(checkedBox, for: UIControl.State.normal)
             }
             else {
-                checkBoxButton.setImage(uncheckedBox, for: UIControlState.normal)
+                checkBoxButton.setImage(uncheckedBox, for: UIControl.State.normal)
             }
             locOtherInput.text = survey.locOther
             camOtherInput.text = survey.camOther
-            if survey.camera1 != nil && survey.camera1! {
-                checkBoxButton3.setImage(checkedBox, for: UIControlState.normal)
-            }
-            else {
-                checkBoxButton3.setImage(uncheckedBox, for: UIControlState.normal)
-            }
-            if survey.camera2 != nil && survey.camera2! {
-                checkBoxButton4.setImage(checkedBox, for: UIControlState.normal)
-            }
-            else {
-                checkBoxButton4.setImage(uncheckedBox, for: UIControlState.normal)
-            }
+
             
             if survey.elevationMetres != nil  && survey.elevationMetres != 0 {
                 updateElevation()
@@ -393,10 +737,10 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 cardNumber.text = ""
             }
             if survey.gpsActive != nil && survey.gpsActive! {
-                checkBoxButton5.setImage(checkedBox, for: UIControlState.normal)
+                checkBoxButton5.setImage(checkedBox, for: UIControl.State.normal)
             }
             else {
-                checkBoxButton5.setImage(uncheckedBox, for: UIControlState.normal)
+                checkBoxButton5.setImage(uncheckedBox, for: UIControl.State.normal)
             }
             
             if survey.repeatImages != nil {
@@ -409,15 +753,17 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             stationNarrative.text = survey.stationNarrative
 
             if survey.illustration != nil && survey.illustration! {
-                checkBoxButton6.setImage(checkedBox, for: UIControlState.normal)
-                checkBoxButton7.setImage(uncheckedBox, for: UIControlState.normal)
+                checkBoxButton6.setImage(checkedBox, for: UIControl.State.normal)
+                checkBoxButton7.setImage(uncheckedBox, for: UIControl.State.normal)
                 if survey.illustrationImage != nil{
-                    narrativeIllustration.image = survey.illustrationImage
+                    //delete this conversion once applied to all iPads
+                    survey.illustrationImageAsData = survey.illustrationImage!.jpegData(compressionQuality: 0.10)
+                    narrativeIllustration.image = UIImage(data:survey.illustrationImageAsData!)
                 }
             }
             else {
-                checkBoxButton7.setImage(checkedBox, for: UIControlState.normal)
-                checkBoxButton6.setImage(uncheckedBox, for: UIControlState.normal)
+                checkBoxButton7.setImage(checkedBox, for: UIControl.State.normal)
+                checkBoxButton6.setImage(uncheckedBox, for: UIControl.State.normal)
                 narrativeIllustration.image = noImageSelected
             }
             
@@ -433,19 +779,15 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             if survey.locationsData != nil {
                 LocationsData = survey.locationsData!
             }
+            else {
+                survey.locationsData = LocationsData
+            }
             
             author.text = survey.author
             photographer.text = survey.photographer
         }
         
-        // Create resetSurvey to have a point to return to
-        resetSurvey = survey?.copySurvey()
-        
-        // Enable the Save button only if the text field has a valid Survey name.
-        updateSaveButtonState()
-        
         isBoxClicked = false
-        isBoxClicked2 = false
         isBoxClicked3 = false
         isBoxClicked4 = false
         isBoxClicked5 = false
@@ -462,6 +804,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         isAddCustomKeywordClicked = false
         
         isAddLocationClicked = false
+        isAddLocationGPSClicked = false
         isAddLocationPhotoClicked = false
         isALocationPhotoClicked = false
         locationPhotoClickedRow = 0
@@ -470,19 +813,23 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         view.addBackground(imageName: "MLP Logo Watermark", contextMode: .scaleAspectFit)
         
         // Date pickers
-        datePicker.date = (survey?.repeatDate as Date?)!
-        datePicker.datePickerMode = UIDatePickerMode.date
+        if survey?.repeatDate != nil{
+            datePicker.date = (survey?.repeatDate as Date?)!
+        }
+        datePicker.datePickerMode = UIDatePicker.Mode.date
         repeatDate.inputView = datePicker
-        timePicker.date = (survey?.repeatDate as Date?)!
-        timePicker.datePickerMode = UIDatePickerMode.time
+        if survey?.repeatDate != nil{
+            timePicker.date = (survey?.repeatDate as Date?)!
+        }
+        timePicker.datePickerMode = UIDatePicker.Mode.time
         startTime.inputView = timePicker
         finishTime.inputView = timePicker
         
         let doneBar = UIToolbar()
         doneBar.barStyle = UIBarStyle.default
         doneBar.isTranslucent = true
-        let space = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: nil, action: nil)
-        let doneButton = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.done, target: self, action: #selector(DetailViewController.doneDatePickerPressed))
+        let space = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: UIBarButtonItem.Style.done, target: self, action: #selector(DetailViewController.doneDatePickerPressed))
         
         // if you remove the space element, the "done" button will be left aligned
         // you can add more items if you want
@@ -504,14 +851,49 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         narrativeIllustration.isUserInteractionEnabled = true
         
         self.hideKeyboardWhenTappedAround()
-
-        self.view.transform = CGAffineTransform.identity.scaledBy(x: UIScreen.main.bounds.width/1024, y: UIScreen.main.bounds.height/1366)
+        
+        //MARK: Adjust view to device screensize
+        let transformValue = (self.navigationController?.view.bounds.width)!/1024
+        self.view.transform = CGAffineTransform.identity.scaledBy(x: transformValue, y: transformValue)
+        
+        SurveyYear.keyboardType = UIKeyboardType.numberPad
+        StationName.keyboardType = UIKeyboardType.numberPad
+        
+        DDLat.keyboardType = UIKeyboardType.numberPad
+        DDLong.keyboardType = UIKeyboardType.numberPad
+        DMMLatDeg.keyboardType = UIKeyboardType.numberPad
+        DMMLatMin.keyboardType = UIKeyboardType.numberPad
+        DMMLonDeg.keyboardType = UIKeyboardType.numberPad
+        DMMLonMin.keyboardType = UIKeyboardType.numberPad
+        DMSLatDeg.keyboardType = UIKeyboardType.numberPad
+        DMSLatMin.keyboardType = UIKeyboardType.numberPad
+        DMSLatSec.keyboardType = UIKeyboardType.numberPad
+        DMSLonDeg.keyboardType = UIKeyboardType.numberPad
+        DMSLonMin.keyboardType = UIKeyboardType.numberPad
+        DMSLonSec.keyboardType = UIKeyboardType.numberPad
+        
+        windSpeed.keyboardType = UIKeyboardType.numberPad
+        gustSpeed.keyboardType = UIKeyboardType.numberPad
+        temp.keyboardType = UIKeyboardType.numberPad
+        humidity.keyboardType = UIKeyboardType.numberPad
+        baroPress.keyboardType = UIKeyboardType.numberPad
+        wetBulb.keyboardType = UIKeyboardType.numberPad
+        
+        elevMetres.keyboardType = UIKeyboardType.numberPad
+        elevFT.keyboardType = UIKeyboardType.numberPad
+        
+        cardNumber.keyboardType = UIKeyboardType.numberPad
+        locationInput.keyboardType = UIKeyboardType.numberPad
+        OriginalPhotoNumberInput.keyboardType = UIKeyboardType.numberPad
+        RepeatPhotoNumberInput.keyboardType = UIKeyboardType.numberPad
+        azimuthInput.keyboardType = UIKeyboardType.numberPad
         
         // Do any additional setup after loading the view, typically from a nib.
+        
         self.configureView()
     }
     
-    func imageTapped(gesture: UIGestureRecognizer) {
+    @objc func imageTapped(gesture: UIGestureRecognizer) {
         if (gesture.view as? UIImageView) != nil {
             isBoxClicked6 = true
             let imagePickerController = UIImagePickerController()
@@ -519,14 +901,45 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             // Make sure ViewController is notified when the user picks an image.
             imagePickerController.delegate = self
             imagePickerController.allowsEditing = true
-            imagePickerController.sourceType = UIImagePickerControllerSourceType.camera
-            present(imagePickerController, animated: true, completion: nil)
+            let alert = UIAlertController(title: "Image Source?", message: "Would you like to take a new photo, or use one saved on the iPad?", preferredStyle: UIAlertController.Style.alert)
+            
+            // add the actions (buttons)
+            alert.addAction(UIAlertAction(title: "Take new photo", style: .default, handler: { (action: UIAlertAction!) in
+                imagePickerController.sourceType = UIImagePickerController.SourceType.camera
+                self.present(imagePickerController, animated: true, completion: nil)
+            }))
+            alert.addAction(UIAlertAction(title: "Use saved photo", style: .default, handler: { (action: UIAlertAction!) in
+                imagePickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
+                self.present(imagePickerController, animated: true, completion: nil)
+            }))
+            alert.addAction(UIAlertAction(title: "Just view current image", style: .default, handler: { (action: UIAlertAction!) in
+                let imageView = gesture.view as! UIImageView
+                let newImageView = UIImageView(image: imageView.image)
+                newImageView.frame = UIScreen.main.bounds
+                newImageView.backgroundColor = .black
+                newImageView.contentMode = .scaleAspectFit
+                newImageView.isUserInteractionEnabled = true
+                let tap = UITapGestureRecognizer(target: self, action: #selector(self.dismissFullscreenImage))
+                newImageView.addGestureRecognizer(tap)
+                self.view.addSubview(newImageView)
+                self.navigationController?.isNavigationBarHidden = true
+                self.tabBarController?.tabBar.isHidden = true
+                
+            }))
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+            }))
+            
+            // show the alert
+            present(alert, animated: true, completion: nil)
         }
     }
-    
-    func doneDatePickerPressed(){
-        self.view.endEditing(true)
+    @objc func dismissFullscreenImage(_ sender: UITapGestureRecognizer) {
+        self.navigationController?.isNavigationBarHidden = false
+        self.tabBarController?.tabBar.isHidden = false
+        sender.view?.removeFromSuperview()
+        //http://stackoverflow.com/questions/34694377/swift-how-can-i-make-an-image-full-screen-when-clicked-and-then-original-size
     }
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -539,141 +952,726 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
-    // MARK: Check box for iPad
-    @IBAction func checkBox(_ sender: Any) {
-        if isBoxClicked == true{
-            isBoxClicked = false
+    //MARK: TextField Controls
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        //MARK: Handle survey, year, and station input
+        if textField == self.HistoricSurveyName {
+            navigationItem.title = HistoricSurveyName.text
+            survey?.historicSurvey = HistoricSurveyName.text!
         }
-        else{
-            isBoxClicked = true
+        if textField == self.SurveyYear {
+            if isInteger(a: SurveyYear.text!) {
+                survey?.year = Int(SurveyYear.text!)!
+            }
+            SurveyYear.text = String(format: "%d", (survey?.year)!)
         }
-        if isBoxClicked == true{
-            checkBoxButton.setImage(checkedBox, for: UIControlState.normal)
-            survey?.iPad = true
+        if textField == self.StationName {
+            survey?.stationName = StationName.text!
         }
-        else{
-            checkBoxButton.setImage(uncheckedBox, for: UIControlState.normal)
-            survey?.iPad = false
+        
+        //MARK: Handle date and times input
+        if textField == self.repeatDate {
+            survey?.repeatDate = combineDateWithTime(date: datePicker.date, time: (survey?.repeatDate)! as Date) as NSDate?
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = DateFormatter.Style.long
+            textField.text = dateFormatter.string(from: survey!.repeatDate! as Date)
+        }
+        
+        if textField == self.startTime {
+            survey?.repeatDate = combineDateWithTime(date: (survey?.repeatDate)! as Date, time: timePicker.date) as NSDate?
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "h:mm a"
+            textField.text = dateFormatter.string(from: survey!.repeatDate! as Date)
+        }
+        if textField == self.finishTime {
+            survey?.finishTime = combineDateWithTime(date: (survey?.repeatDate)! as Date, time: timePicker.date) as NSDate?
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "h:mm a"
+            textField.text = dateFormatter.string(from: survey!.finishTime! as Date)
+        }
+        
+        //MARK: Handle DD input
+        if textField == self.DDLat {
+            if isNumeric(a: DDLat.text!){
+                let latitude = Double(DDLat.text!)!
+                if validLat(latitude: latitude){
+                    survey?.location?.latitude = latitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLatFields()
+        }
+        if textField == self.DDLong {
+            if isNumeric(a: DDLong.text!){
+                let longitude = Double(DDLong.text!)!
+                if validLon(longitude: longitude){
+                    survey?.location?.longitude = longitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLonFields()
+        }
+        
+        //MARK: Handle DMM input
+        if textField == self.DMMLatDeg {
+            if isNumeric(a: DMMLatDeg.text!) && Double(DMMLatDeg.text!)! >= -90.0 && Double(DMMLatDeg.text!)! <= 90.0 {
+                if DMMLatMin.text == "" {
+                    DMMLatMin.text = "0"
+                }
+                let latitude = DMMtoDD(latDeg: Double(DMMLatDeg.text!)!, latMin: Double(DMMLatMin.text!)!, latDir: DMMLatDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
+                if validLat(latitude: latitude){
+                    survey?.location?.latitude = latitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLatFields()
+        }
+        if textField == self.DMMLatMin {
+            if isNumeric(a: DMMLatMin.text!){
+                if DMMLatDeg.text == "" {
+                    DMMLatDeg.text = "0"
+                }
+                let latitude = DMMtoDD(latDeg: Double(DMMLatDeg.text!)!, latMin: Double(DMMLatMin.text!)!, latDir: DMMLatDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
+                if validLat(latitude: latitude){
+                    survey?.location?.latitude = latitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLatFields()
+        }
+        if textField == self.DMMLatDir && DMMLatDir.text != "" {
+            survey?.location?.latitude = DMMtoDD(latDeg: Double(DMMLatDeg.text!)!, latMin: Double(DMMLatMin.text!)!, latDir: DMMLatDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
+            updateAllLatFields()
+        }
+        if textField == self.DMMLonDeg {
+            if isNumeric(a: DMMLonDeg.text!) && Double(DMMLonDeg.text!)! >= -180.0 && Double(DMMLonDeg.text!)! <= 180.0 {
+                if DMMLonMin.text == "" {
+                    DMMLonMin.text = "0"
+                }
+                let longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(DMMLonDeg.text!)!, longMin: Double(DMMLonMin.text!)!, longDir: DMMLonDir.text).longitude
+                if validLon(longitude: longitude){
+                    survey?.location?.longitude = longitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLonFields()
+        }
+        if textField == self.DMMLonMin  {
+            if isNumeric(a: DMMLonMin.text!){
+                if DMMLonDeg.text == "" {
+                    DMMLonDeg.text = "0"
+                }
+                let longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(DMMLonDeg.text!)!, longMin: Double(DMMLonMin.text!)!, longDir: DMMLonDir.text).longitude
+                if validLon(longitude: longitude){
+                    survey?.location?.longitude = longitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLonFields()
+        }
+        if textField == self.DMMLonDir && DMMLonDir.text != "" {
+            survey?.location?.longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(DMMLonDeg.text!)!, longMin: Double(DMMLonMin.text!)!, longDir: DMMLonDir.text).longitude
+            updateAllLonFields()
+        }
+        
+        //MARK: Handle DMS input
+        if textField == self.DMSLatDeg {
+            if isNumeric(a: DMSLatDeg.text!) && Double(DMSLatDeg.text!)! >= -90.0 && Double(DMSLatDeg.text!)! <= 90.0 {
+                if DMSLatMin.text == "" {
+                    DMSLatMin.text = "0"
+                }
+                if DMSLatSec.text == "" {
+                    DMSLatSec.text = "0"
+                }
+                let latitude = DMStoDD(latDeg: Double(DMSLatDeg.text!)!, latMin: Double(DMSLatMin.text!)!, latSec: Double(DMSLatSec.text!)!, latDir: DMSLatDir.text, longDeg: 0, longMin: 0, longSec: 0, longDir: "").latitude
+                if validLat(latitude: latitude){
+                    survey?.location?.latitude = latitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLatFields()
+        }
+        if textField == self.DMSLatMin {
+            if isNumeric(a: DMSLatMin.text!){
+                if DMSLatDeg.text == "" {
+                    DMSLatDeg.text = "0"
+                }
+                if DMSLatSec.text == "" {
+                    DMSLatSec.text = "0"
+                }
+                let latitude = DMStoDD(latDeg: Double(DMSLatDeg.text!)!, latMin: Double(DMSLatMin.text!)!, latSec: Double(DMSLatSec.text!)!, latDir: DMSLatDir.text, longDeg: 0, longMin: 0, longSec: 0, longDir: "").latitude
+                if validLat(latitude: latitude){
+                    survey?.location?.latitude = latitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLatFields()
+        }
+        if textField == self.DMSLatSec {
+            if isNumeric(a: DMSLatSec.text!) {
+                if DMSLatDeg.text == "" {
+                    DMSLatDeg.text = "0"
+                }
+                if DMSLatMin.text == "" {
+                    DMSLatMin.text = "0"
+                }
+                let latitude = DMStoDD(latDeg: Double(DMSLatDeg.text!)!, latMin: Double(DMSLatMin.text!)!, latSec: Double(DMSLatSec.text!)!, latDir: DMSLatDir.text, longDeg: 0, longMin: 0, longSec: 0, longDir: "").latitude
+                if validLat(latitude: latitude){
+                    survey?.location?.latitude = latitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLatFields()
+        }
+        if textField == self.DMSLatDir && DMMLatDir.text != "" {
+            survey?.location?.latitude = DMStoDD(latDeg: Double(DMSLatDeg.text!)!, latMin: Double(DMSLatMin.text!)!, latSec: Double(DMSLatSec.text!)!, latDir: DMSLatDir.text, longDeg: 0, longMin: 0, longSec: 0, longDir: "").latitude
+            updateAllLatFields()
+        }
+        if textField == self.DMSLonDeg {
+            if isNumeric(a: DMSLonDeg.text!) && Double(DMSLonDeg.text!)! >= -180.0 && Double(DMSLonDeg.text!)! <= 180.0 {
+                if DMSLonMin.text == "" {
+                    DMSLonMin.text = "0"
+                }
+                if DMSLonSec.text == "" {
+                    DMSLonSec.text = "0"
+                }
+                let longitude = DMStoDD(latDeg: 0, latMin: 0, latSec: 0, latDir: "", longDeg: Double(DMSLonDeg.text!)!, longMin: Double(DMSLonMin.text!)!, longSec: Double(DMSLonSec.text!)!, longDir: DMSLonDir.text).longitude
+                if validLon(longitude: longitude){
+                    survey?.location?.longitude = longitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLonFields()
+        }
+        if textField == self.DMSLonMin{
+            if isNumeric(a: DMSLonMin.text!) {
+                if DMSLonDeg.text == "" {
+                    DMSLonDeg.text = "0"
+                }
+                if DMSLonSec.text == "" {
+                    DMSLonSec.text = "0"
+                }
+                let longitude = DMStoDD(latDeg: 0, latMin: 0, latSec: 0, latDir: "", longDeg: Double(DMSLonDeg.text!)!, longMin: Double(DMSLonMin.text!)!, longSec: Double(DMSLonSec.text!)!, longDir: DMSLonDir.text).longitude
+                if validLon(longitude: longitude){
+                    survey?.location?.longitude = longitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLonFields()
+        }
+        if textField == self.DMSLonSec {
+            if isNumeric(a: DMSLonSec.text!) {
+                if DMSLonDeg.text == "" {
+                    DMSLonDeg.text = "0"
+                }
+                if DMSLonMin.text == "" {
+                    DMSLonMin.text = "0"
+                }
+                let longitude = DMStoDD(latDeg: 0, latMin: 0, latSec: 0, latDir: "", longDeg: Double(DMSLonDeg.text!)!, longMin: Double(DMSLonMin.text!)!, longSec: Double(DMSLonSec.text!)!, longDir: DMSLonDir.text).longitude
+                if validLon(longitude: longitude){
+                    survey?.location?.longitude = longitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+            }
+            updateAllLonFields()
+        }
+        if textField == self.DMSLonDir && DMSLonDir.text != "" {
+            survey?.location?.longitude = DMStoDD(latDeg: 0, latMin: 0, latSec: 0, latDir: "", longDeg: Double(DMSLonDeg.text!)!, longMin: Double(DMSLonMin.text!)!, longSec: Double(DMSLonSec.text!)!, longDir: DMSLonDir.text).longitude
+            updateAllLonFields()
+        }
+        
+        if textField == self.pilotName {
+            survey?.pilot = pilotName.text
+        }
+        if textField == self.rwCallSign {
+            survey?.rwCallSign = rwCallSign.text
+        }
+        
+        if textField == self.windSpeed {
+            if isNumeric(a: windSpeed.text!) {
+                survey?.averageWindSpeed = Double(windSpeed.text!)!
+            }
+            if survey?.averageWindSpeed != nil {
+                windSpeed.text = String(format: "%.1f", (survey?.averageWindSpeed!)!)
+            }
+            else{
+                windSpeed.text = ""
+            }
+        }
+        if textField == self.temp {
+            if isNumeric(a: temp.text!) {
+                survey?.temperature = Double(temp.text!)!
+            }
+            if survey?.temperature != nil {
+                temp.text = String(format: "%.1f", (survey?.temperature!)!)
+            }
+            else {
+                temp.text = ""
+            }
+        }
+        if textField == self.baroPress {
+            if isNumeric(a: baroPress.text!) {
+                survey?.barometricPressure = Double(baroPress.text!)!
+            }
+            if survey?.barometricPressure != nil {
+                baroPress.text = String(format: "%.1f", (survey?.barometricPressure!)!)
+            }
+            else {
+                baroPress.text = ""
+            }
+        }
+        if textField == self.gustSpeed {
+            if isNumeric(a: gustSpeed.text!) {
+                survey?.maximumGustSpeed = Double(gustSpeed.text!)!
+            }
+            if survey?.maximumGustSpeed != nil {
+                gustSpeed.text = String(format: "%.1f", (survey?.maximumGustSpeed!)!)
+            }
+            else {
+                gustSpeed.text = ""
+            }
+        }
+        if textField == self.humidity {
+            if isNumeric(a: humidity.text!) {
+                survey?.relativeHumidity = Double(humidity.text!)!
+            }
+            if survey?.relativeHumidity != nil {
+                humidity.text = String(format: "%.1f", (survey?.relativeHumidity!)!)
+            }
+            else {
+                humidity.text = ""
+            }
+        }
+        if textField == self.wetBulb {
+            if isNumeric(a: wetBulb.text!) {
+                survey?.wetBulbReading = Double(wetBulb.text!)!
+            }
+            if survey?.wetBulbReading != nil {
+                wetBulb.text = String(format: "%.1f", (survey?.wetBulbReading!)!)
+            }
+            else {
+                wetBulb.text = ""
+            }
+        }
+        
+        if textField == self.locOtherInput {
+            survey?.locOther = locOtherInput.text
+        }
+        if textField == self.camOtherInput {
+            survey?.camOther = camOtherInput.text
+        }
+        
+        if textField == self.elevMetres {
+            elevMetres.text = elevMetres.text?.replacingOccurrences(of: ",", with: "")
+            if isNumeric(a: elevMetres.text!) {
+                survey?.elevationMetres = Double(elevMetres.text!)
+            }
+            if elevMetres.text != "" {
+                updateElevation()
+            }
+            else{
+                survey?.elevationMetres = nil
+                elevFT.text = ""
+            }
+        }
+        if textField == self.elevFT {
+            elevFT.text = elevFT.text?.replacingOccurrences(of: ",", with: "")
+            if isNumeric(a: elevFT.text!) {
+                survey?.elevationMetres = Double(elevFT.text!)! / 3.28084
+            }
+            if elevFT.text != "" {
+                updateElevation()
+            }
+            else{
+                survey?.elevationMetres = nil
+                elevMetres.text = ""
+            }
+        }
+        if textField == self.elevComments {
+            survey?.elevationComments = elevComments.text
+        }
+        
+        if textField == self.cardNumber {
+            if isInteger(a: cardNumber.text!) {
+                survey?.cardNumber = Int(cardNumber.text!)
+            }
+            else if survey?.cardNumber != nil {
+                cardNumber.text = String(format: "%d", (survey?.cardNumber)!)
+            }
+            else {
+                cardNumber.text = ""
+            }
+        }
+        
+        if textField == self.author {
+            survey?.author = author.text
+        }
+        if textField == self.photographer {
+            survey?.photographer = photographer.text
+        }
+        
+        let touchPoint = (textField).convert(CGPoint.zero, to: self.LocationDataTable)
+        let indexPath = LocationDataTable.indexPathForRow(at: touchPoint)
+        if indexPath != nil {
+            let cell = LocationDataTable.cellForRow(at: indexPath!) as! LocationDataTableViewCell
+            if textField == cell.LocationName {
+                survey?.locationsData?[(indexPath?.row)!].locationName = textField.text!
+            }
+            if textField == cell.elevation {
+                cell.elevation.text = cell.elevation.text?.replacingOccurrences(of: ",", with: "")
+                if isNumeric(a: cell.elevation.text!) {
+                    survey?.locationsData?[(indexPath?.row)!].elevation = Double(textField.text!)
+                }
+                let numberFormatter = NumberFormatter()
+                numberFormatter.numberStyle = NumberFormatter.Style.decimal
+                let elevationInMetres = round(LocationsData[(indexPath?.row)!].elevation!)
+                cell.elevation.text = numberFormatter.string(from: NSNumber(value: elevationInMetres))
+            }
+            if textField == cell.gpsLatDeg {
+                if isNumeric(a: cell.gpsLatDeg.text!) {
+                    let latitude = DMMtoDD(latDeg: Double(cell.gpsLatDeg.text!)!, latMin: Double(cell.gpsLatMin.text!)!, latDir: cell.gpsLonDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
+                    if validLat(latitude: latitude){
+                        survey?.locationsData?[(indexPath?.row)!].gps?.latitude = latitude
+                    }
+                    else {
+                        invalidCoordinate()
+                    }
+                }
+                let LatDegInt = abs(Int(Double((LocationsData[(indexPath?.row)!].gps?.latitude)!)))
+                let LatMinAbs = abs(Double((LocationsData[(indexPath?.row)!].gps?.latitudeMinutes)!))
+                
+                cell.gpsLatDeg.text = String(format: "%d", LatDegInt)
+                cell.gpsLatMin.text = String(format: "%.4f", LatMinAbs)
+                cell.gpsLatDir.text = LocationsData[(indexPath?.row)!].gps!.latitude >= 0 ? "N" : "S"
+            }
+            if textField == cell.gpsLatMin {
+                if isNumeric(a: cell.gpsLatMin.text!) {
+                    let latitude = DMMtoDD(latDeg: Double(cell.gpsLatDeg.text!)!, latMin: Double(cell.gpsLatMin.text!)!, latDir: cell.gpsLonDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
+                    if validLat(latitude: latitude){
+                        survey?.locationsData?[(indexPath?.row)!].gps?.latitude = latitude
+                    }
+                    else {
+                        invalidCoordinate()
+                    }
+                }
+                let LatDegInt = abs(Int(Double((LocationsData[(indexPath?.row)!].gps?.latitude)!)))
+                let LatMinAbs = abs(Double((LocationsData[(indexPath?.row)!].gps?.latitudeMinutes)!))
+                
+                cell.gpsLatDeg.text = String(format: "%d", LatDegInt)
+                cell.gpsLatMin.text = String(format: "%.4f", LatMinAbs)
+                cell.gpsLatDir.text = LocationsData[(indexPath?.row)!].gps!.latitude >= 0 ? "N" : "S"
+            }
+            if textField == cell.gpsLatDir && cell.gpsLatDir.text != "" {
+                let latitude = DMMtoDD(latDeg: Double(cell.gpsLatDeg.text!)!, latMin: Double(cell.gpsLatMin.text!)!, latDir: cell.gpsLonDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
+                if validLat(latitude: latitude){
+                    survey?.locationsData?[(indexPath?.row)!].gps?.latitude = latitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+                cell.gpsLatDir.text = LocationsData[(indexPath?.row)!].gps!.latitude >= 0 ? "N" : "S"
+            }
+            if textField == cell.gpsLonDeg {
+                if isNumeric(a: cell.gpsLonDeg.text!) {
+                    let longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(cell.gpsLonDeg.text!)!, longMin: Double(cell.gpsLonMin.text!)!, longDir: cell.gpsLonDir.text).longitude
+                    if validLon(longitude: longitude){
+                        survey?.locationsData?[(indexPath?.row)!].gps?.longitude = longitude
+                    }
+                    else {
+                        invalidCoordinate()
+                    }
+                }
+                let LonDegInt = abs(Int(Double((LocationsData[(indexPath?.row)!].gps?.longitude)!)))
+                let LonMinAbs = abs(Double((LocationsData[(indexPath?.row)!].gps?.longitudeMinutes)!))
+                
+                cell.gpsLonDeg.text = String(format: "%d", LonDegInt)
+                cell.gpsLonMin.text = String(format: "%.4f", LonMinAbs)
+                cell.gpsLonDir.text = LocationsData[(indexPath?.row)!].gps!.longitude >= 0 ? "E" : "W"
+            }
+            if textField == cell.gpsLonMin {
+                if isNumeric(a: cell.gpsLonMin.text!) {
+                    let longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(cell.gpsLonDeg.text!)!, longMin: Double(cell.gpsLonMin.text!)!, longDir: cell.gpsLonDir.text).longitude
+                    if validLon(longitude: longitude){
+                        survey?.locationsData?[(indexPath?.row)!].gps?.longitude = longitude
+                    }
+                    else {
+                        invalidCoordinate()
+                    }
+                }
+                let LonDegInt = abs(Int(Double((LocationsData[(indexPath?.row)!].gps?.longitude)!)))
+                let LonMinAbs = abs(Double((LocationsData[(indexPath?.row)!].gps?.longitudeMinutes)!))
+                
+                cell.gpsLonDeg.text = String(format: "%d", LonDegInt)
+                cell.gpsLonMin.text = String(format: "%.4f", LonMinAbs)
+                cell.gpsLonDir.text = LocationsData[(indexPath?.row)!].gps!.longitude >= 0 ? "E" : "W"
+            }
+            if textField == cell.gpsLonDir && cell.gpsLonDir.text != "" {
+                let longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(cell.gpsLonDeg.text!)!, longMin: Double(cell.gpsLonMin.text!)!, longDir: cell.gpsLonDir.text).longitude
+                if validLon(longitude: longitude){
+                    survey?.locationsData?[(indexPath?.row)!].gps?.longitude = longitude
+                }
+                else {
+                    invalidCoordinate()
+                }
+                cell.gpsLonDir.text = LocationsData[(indexPath?.row)!].gps!.longitude >= 0 ? "E" : "W"
+            }
+        }
+        if textField != author && textField != photographer && textField != locationInput && textField != OriginalPhotoNumberInput && textField != RepeatPhotoNumberInput && textField != azimuthInput && textField != notesInput {
+            save()
+        }
+        if textField == OriginalPhotoNumberInput {
+            self.RepeatPhotoNumberInput.becomeFirstResponder()
+        }
+        if textField == RepeatPhotoNumberInput {
+            self.azimuthInput.becomeFirstResponder()
+        }
+        if textField == azimuthInput {
+            self.notesInput.becomeFirstResponder()
         }
     }
-    // MARK: Check box for Camera1
-    @IBAction func checkBox3(_ sender: Any) {
-        if isBoxClicked3 == true{
-            isBoxClicked3 = false
-        }
-        else{
-            isBoxClicked3 = true
-        }
-        if isBoxClicked3 == true{
-            checkBoxButton3.setImage(checkedBox, for: UIControlState.normal)
-            survey?.camera1 = true
-        }
-        else{
-            checkBoxButton3.setImage(uncheckedBox, for: UIControlState.normal)
-            survey?.camera1 = false
-        }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // Hide the keyboard.
+        textField.resignFirstResponder()
+        return true
     }
-    // MARK: Check box for Camera2
-    @IBAction func checkBox4(_ sender: Any) {
-        if isBoxClicked4 == true{
-            isBoxClicked4 = false
-        }
-        else{
-            isBoxClicked4 = true
-        }
-        if isBoxClicked4 == true{
-            checkBoxButton4.setImage(checkedBox, for: UIControlState.normal)
-            survey?.camera2 = true
-        }
-        else{
-            checkBoxButton4.setImage(uncheckedBox, for: UIControlState.normal)
-            survey?.camera2 = false
-        }
-    }
-    // MARK: Check box for GPS
-    @IBAction func checkBox5(_ sender: Any) {
-        if isBoxClicked5 == true{
-            isBoxClicked5 = false
-        }
-        else{
-            isBoxClicked5 = true
-        }
-        if isBoxClicked5 == true{
-            checkBoxButton5.setImage(checkedBox, for: UIControlState.normal)
-            survey?.gpsActive = true
-        }
-        else{
-            checkBoxButton5.setImage(uncheckedBox, for: UIControlState.normal)
-            survey?.gpsActive = false
-        }
-    }
-    // MARK: Yes button for selecting an image for station narrative
-    @IBAction func checkBox6(_ sender: Any) {
-        if isBoxClicked6 == true{
-            isBoxClicked6 = false
-        }
-        else{
-            isBoxClicked6 = true
-        }
-        if isBoxClicked6 == true{
-            checkBoxButton6.setImage(checkedBox, for: UIControlState.normal)
-            
-            // prompt to select image
-            // UIImagePickerController is a view controller that lets a user pick media from their photo library.
-            let imagePickerController = UIImagePickerController()
-            
-            // Make sure ViewController is notified when the user picks an image.
-            imagePickerController.delegate = self
-            imagePickerController.allowsEditing = true
-            imagePickerController.sourceType = UIImagePickerControllerSourceType.camera
-            present(imagePickerController, animated: true, completion: nil)
-            
-            checkBoxButton7.setImage(uncheckedBox, for: UIControlState.normal)
-            isBoxClicked7 = false
-            survey?.illustration = true
-        }
-        else{
-            checkBoxButton6.setImage(uncheckedBox, for: UIControlState.normal)
-            // if not no image selected, switch to no image selected
-            survey?.illustration = false
-            survey?.illustrationImage = noImageSelected
-        }
 
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == self.locationInput {
+            textField.text = string
+            self.OriginalPhotoNumberInput.becomeFirstResponder()
+            return false
+        }
+        return true
     }
-    // MARK: No button for selecting an image for station narrative
-    @IBAction func checkBox7(_ sender: Any) {
-        if isBoxClicked7 == true{
-            isBoxClicked7 = false
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        if textField == self.hikingDetails {
+            performSegue(withIdentifier: "popoverSegue", sender: nil)
         }
-        else{
-            isBoxClicked7 = true
+        if textField == self.camOtherInput {
+            performSegue(withIdentifier: "cameraPopoverSegue", sender: nil)
         }
-        if isBoxClicked7 == true{
-            checkBoxButton7.setImage(checkedBox, for: UIControlState.normal)
-            // if not no image selected, switch to no image selected
-            narrativeIllustration.image = noImageSelected
-            
-            checkBoxButton6.setImage(uncheckedBox, for: UIControlState.normal)
-            isBoxClicked6 = false
-            survey?.illustration = false
-            survey?.illustrationImage = noImageSelected
+        if textField == self.author {
+            if survey?.hikingParty != nil {
+                let possibleAuthors = survey?.hikingParty
+                let alert = UIAlertController(title: "Author?", message: "Who was the primary author of this document?", preferredStyle: UIAlertController.Style.alert)
+                
+                // add the actions (buttons)
+                for author in possibleAuthors! {
+                    alert.addAction(UIAlertAction(title: author, style: .default, handler: { (action: UIAlertAction!) in
+                        self.survey?.author = author
+                        self.save()
+                        self.author.text = self.survey?.author
+                    }))
+                }
+                alert.addAction(UIAlertAction(title: "Clear", style: .cancel, handler: { (action: UIAlertAction!) in
+                    self.survey?.author = ""
+                    self.save()
+                    self.author.text = ""
+                    
+                }))
+                // show the alert
+                present(alert, animated: true, completion: nil)
+            }
         }
-        else{
-            checkBoxButton7.setImage(uncheckedBox, for: UIControlState.normal)
+        if textField == self.photographer {
+            if survey?.hikingParty != nil {
+                let possiblePhotgraphers = survey?.hikingParty
+                let alert = UIAlertController(title: "Photographer?", message: "Who was the primary photographer?", preferredStyle: UIAlertController.Style.alert)
+                
+                // add the actions (buttons)
+                for photographer in possiblePhotgraphers! {
+                    alert.addAction(UIAlertAction(title: photographer, style: .default, handler: { (action: UIAlertAction!) in
+                        self.survey?.photographer = photographer
+                        self.photographer.text = self.survey?.photographer
+                    }))
+                }
+                alert.addAction(UIAlertAction(title: "Clear", style: .cancel, handler: { (action: UIAlertAction!) in
+                    self.survey?.photographer = ""
+                    self.photographer.text = ""
+                }))
+                // show the alert
+                present(alert, animated: true, completion: nil)
+            }
+        }
+        
+        textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
+    }
+    //MARK: TextField helper functions
+    //MARK: TextField functions for lat/long
+    func validLat(latitude: CLLocationDegrees) -> Bool {
+        if Double(latitude) >= -90.0 && Double(latitude) <= 90.0{
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    func updateAllLatFields(){
+        DDLat.text = String(format: "%.5f", (survey?.location?.latitude)!)
+        
+        let LatDegInt = abs(Int(Double((survey?.location?.latitude)!)))
+        let LatMinAbs = abs(Double((survey?.location?.latitudeMinutes)!))
+        let LatSecsAbs = abs(Double((survey?.location?.latitudeSeconds)!))
+        
+        DMMLatDeg.text = String(format: "%d", LatDegInt)
+        DMMLatMin.text = String(format: "%.4f", LatMinAbs)
+        DMMLatDir.text = survey!.location!.latitude >= 0 ? "N" : "S"
+        
+        DMSLatDeg.text = String(format: "%d", LatDegInt)
+        DMSLatMin.text = String(format: "%d", Int(LatMinAbs))
+        DMSLatSec.text = String(format: "%.1f", LatSecsAbs)
+        DMSLatDir.text = survey!.location!.latitude >= 0 ? "N" : "S"
+        
+        let span = MKCoordinateSpan.init(latitudeDelta: 0.01,longitudeDelta: 0.01)
+        let region = MKCoordinateRegion(center: (survey?.location!)!, span: span)
+        narrativeMap.setRegion(region, animated: true)
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = (survey?.location!)!
+        narrativeMap.addAnnotation(annotation)
+    }
+    func validLon(longitude: CLLocationDegrees) -> Bool {
+        if Double(longitude) >= -180.0 && Double(longitude) <= 180.0{
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    func updateAllLonFields(){
+        DDLong.text = String(format: "%.5f", (survey?.location?.longitude)!)
+        
+        let LonDegInt = abs(Int(Double((survey?.location?.longitude)!)))
+        let LonMinAbs = abs(Double((survey?.location?.longitudeMinutes)!))
+        let LonSecsAbs = abs(Double((survey?.location?.longitudeSeconds)!))
+        
+        DMMLonDeg.text = String(format: "%d", LonDegInt)
+        DMMLonMin.text = String(format: "%.4f", LonMinAbs)
+        DMMLonDir.text = survey!.location!.longitude >= 0 ? "E" : "W"
+        
+        DMSLonDeg.text = String(format: "%d", LonDegInt)
+        DMSLonMin.text = String(format: "%d", Int(LonMinAbs))
+        DMSLonSec.text = String(format: "%.1f", LonSecsAbs)
+        DMSLonDir.text = survey!.location!.longitude >= 0 ? "E" : "W"
+        
+        let span = MKCoordinateSpan.init(latitudeDelta: 0.01,longitudeDelta: 0.01)
+        let region = MKCoordinateRegion(center: (survey?.location!)!, span: span)
+        narrativeMap.setRegion(region, animated: true)
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = (survey?.location!)!
+        narrativeMap.addAnnotation(annotation)
+    }
+    func invalidCoordinate(){
+        let alert = UIAlertController(title: "Invalid input", message: "Supplied GPS co-ordinate is invalid", preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { (action: UIAlertAction!) in
+        }))
+        // show the alert
+        present(alert, animated: true, completion: nil)
+    }
+    //MARK: Check text is numeric
+    func isNumeric(a: String) -> Bool {
+        return (Double(a) != nil && a != "")
+    }
+    func isInteger(a: String) -> Bool {
+        return (Int(a) != nil && a != "")
+    }
+    //MARK: Convert Elevation between metres and feet
+    func updateElevation() {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = NumberFormatter.Style.decimal
+        let elevationInMetres = round((survey?.elevationMetres!)!)
+        elevMetres.text = numberFormatter.string(from: NSNumber(value: elevationInMetres))
+        let elevationInFeet = round((survey?.elevationMetres!)! * 3.28084)
+        elevFT.text = numberFormatter.string(from: NSNumber(value: elevationInFeet))
+    }
+    //MARK: Combine date with time to allow selection/changes of each independently
+    func combineDateWithTime(date: Date, time: Date) -> Date? {
+        let calendar = NSCalendar.current
+        
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: time)
+        
+        var mergedComponments = DateComponents()
+        mergedComponments.year = dateComponents.year!
+        mergedComponments.month = dateComponents.month!
+        mergedComponments.day = dateComponents.day!
+        mergedComponments.hour = timeComponents.hour!
+        mergedComponments.minute = timeComponents.minute!
+        mergedComponments.second = timeComponents.second!
+        
+        return calendar.date(from: mergedComponments)
+        
+        //https://gist.github.com/justinmfischer/0a6edf711569854c2537
+    }
+    
+    //MARK: TextView Controls
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        DispatchQueue.main.async {
+            textView.selectAll(nil)
         }
     }
     
-    // MARK: Repeat Image Data components
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView == self.stationNarrative {
+            survey?.stationNarrative = stationNarrative.text
+            /*if survey?.hikingParty != nil && textView.text != "" {
+                let possibleAuthors = survey?.hikingParty
+                let alert = UIAlertController(title: "Author?", message: "Who authored this narrative?", preferredStyle: UIAlertControllerStyle.alert)
+                
+                // add the actions (buttons)
+                for author in possibleAuthors! {
+                    alert.addAction(UIAlertAction(title: author, style: .default, handler: { (action: UIAlertAction!) in
+                        self.survey?.stationNarrative = (self.survey?.stationNarrative)! + "\n~\(author)"
+                        self.stationNarrative.text = self.survey?.stationNarrative
+                    }))
+                }
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+                }))
+                // show the alert
+                present(alert, animated: true, completion: nil)
+            //decided 1 author at end is sufficient
+            }*/
+        }
+        
+        if textView == self.weatherNarrative {
+            survey?.weatherNarrative = weatherNarrative.text
+        }
+        
+        let touchPoint = (textView).convert(CGPoint.zero, to: self.LocationDataTable)
+        let indexPath = LocationDataTable.indexPathForRow(at: touchPoint)
+        if indexPath != nil {
+            let cell = LocationDataTable.cellForRow(at: indexPath!) as! LocationDataTableViewCell
+            if textView == cell.LocationNarrative {
+                survey?.locationsData?[(indexPath?.row)!].locationNarrative = textView.text!
+            }
+        }
+        save()
+    }
     
-    var repeatImagesData = [RepeatImageData]()
-    
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var locationInput: UITextField!
-    @IBOutlet weak var OriginalPhotoNumberInput: UITextField!
-    @IBOutlet weak var RepeatPhotoNumberInput: UITextField!
-    @IBOutlet weak var azimuthInput: UITextField!
-    
-    //MARK: General Table control functions
+    //MARK: TableView controls
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView == self.tableView {
             let cell = tableView.dequeueReusableCell(withIdentifier: "RepeatImageDataViewCell", for: indexPath) as! RepeatImageDataViewCell
@@ -683,11 +1681,13 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             if repeatImagesData[indexPath.row].azimuth != nil
             {
                 cell.azimuthField?.text = String(format:"%.1f", repeatImagesData[indexPath.row].azimuth!) + "°"
+                
             }
             else {
                 cell.azimuthField.text = "Not taken"
             }
-            cell.selectionStyle = UITableViewCellSelectionStyle.none
+            cell.notesField.text = repeatImagesData[indexPath.row].notes
+            cell.selectionStyle = UITableViewCell.SelectionStyle.none
             return cell
         }
         
@@ -696,7 +1696,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             cell.category.text = KeywordsData[indexPath.row].category
             cell.keyword.text = KeywordsData[indexPath.row].keyword
             cell.descriptionComment.text = KeywordsData[indexPath.row].comment
-            cell.selectionStyle = UITableViewCellSelectionStyle.none
+            cell.selectionStyle = UITableViewCell.SelectionStyle.none
             return cell
         }
         
@@ -706,7 +1706,35 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             cell.LocationName.text = LocationsData[indexPath.row].locationName
             cell.LocationNarrative.delegate = self as UITextViewDelegate
             cell.LocationNarrative.text = LocationsData[indexPath.row].locationNarrative
-            cell.selectionStyle = UITableViewCellSelectionStyle.none
+            
+            cell.elevation.delegate = self as UITextFieldDelegate
+            let numberFormatter = NumberFormatter()
+            numberFormatter.numberStyle = NumberFormatter.Style.decimal
+            let elevationInMetres = round(LocationsData[indexPath.row].elevation!)
+            cell.elevation.text = numberFormatter.string(from: NSNumber(value: elevationInMetres))
+            
+            cell.gpsLatDeg.delegate = self as UITextFieldDelegate
+            cell.gpsLatMin.delegate = self as UITextFieldDelegate
+            cell.gpsLatDir.delegate = self as UITextFieldDelegate
+            cell.gpsLonDeg.delegate = self as UITextFieldDelegate
+            cell.gpsLonMin.delegate = self as UITextFieldDelegate
+            cell.gpsLonDir.delegate = self as UITextFieldDelegate
+            
+            let LatDegInt = abs(Int(Double((LocationsData[indexPath.row].gps?.latitude)!)))
+            let LatMinAbs = abs(Double((LocationsData[indexPath.row].gps?.latitudeMinutes)!))
+            
+            cell.gpsLatDeg.text = String(format: "%d", LatDegInt)
+            cell.gpsLatMin.text = String(format: "%.4f", LatMinAbs)
+            cell.gpsLatDir.text = LocationsData[indexPath.row].gps!.latitude >= 0 ? "N" : "S"
+            
+            let LonDegInt = abs(Int(Double((LocationsData[indexPath.row].gps?.longitude)!)))
+            let LonMinAbs = abs(Double((LocationsData[indexPath.row].gps?.longitudeMinutes)!))
+            
+            cell.gpsLonDeg.text = String(format: "%d", LonDegInt)
+            cell.gpsLonMin.text = String(format: "%.4f", LonMinAbs)
+            cell.gpsLonDir.text = LocationsData[indexPath.row].gps!.longitude >= 0 ? "E" : "W"
+            
+            cell.selectionStyle = UITableViewCell.SelectionStyle.none
             return cell
         }
     }
@@ -730,7 +1758,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         return true
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             if tableView == self.tableView {
                 repeatImagesData.remove(at: indexPath.row)
@@ -746,73 +1774,54 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
         }
     }
-    
-    //MARK: Table functions specifically for Repeat Image Data
-    @IBAction func addNewRepeatImageData(_ sender: Any) {
-        if isAddRepeatDataClicked == true {
-            isAddRepeatDataClicked = false
-        }
-        else {
-            isAddRepeatDataClicked = true
-        }
-        if isAddRepeatDataClicked == true {
-            if !locationInput.text!.isEmpty && !OriginalPhotoNumberInput.text!.isEmpty && !RepeatPhotoNumberInput.text!.isEmpty{
-                insertNewRepeatImageData()
-                locationInput.text = ""
-                OriginalPhotoNumberInput.text = ""
-                RepeatPhotoNumberInput.text = ""
-                azimuthInput.text = ""
-            }
-            isAddRepeatDataClicked = false
-        }
-    }
-    func insertNewRepeatImageData() {
-        let newRepeatImageData = RepeatImageData(location: locationInput.text!, originalPhotoNumber: OriginalPhotoNumberInput.text!, repeatPhotoNumber: RepeatPhotoNumberInput.text!, azimuth: Double(azimuthInput.text!))
-        repeatImagesData.insert(newRepeatImageData!, at: 0)
-        survey?.repeatImages = repeatImagesData
-        let indexPath = IndexPath(row: 0, section: 0)
-        self.tableView.insertRows(at: [indexPath], with: .automatic)
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let tableViewCell = cell as? LocationDataTableViewCell else { return }
+        
+        tableViewCell.setCollectionViewDataSourceDelegate(self, forRow: indexPath.row)
+        tableViewCell.collectionViewOffset = storedOffsets[indexPath.row] ?? 0
     }
     
-    //MARK: Location Narrative
-    @IBOutlet weak var narrativeIllustration: UIImageView!
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let tableViewCell = cell as? LocationDataTableViewCell else { return }
+        
+        storedOffsets[indexPath.row] = tableViewCell.collectionViewOffset
+    }
     
     //MARK: UIImagePickerControllerDelegate - Functions for image selection
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         // Dismiss the picker if the user canceled.
         dismiss(animated: true, completion: nil)
     }
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+// Local variable inserted by Swift 4.2 migrator.
+let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
+
         // The info dictionary may contain multiple representations of the image. You want to use the original.
-        guard let selectedImage = info[UIImagePickerControllerOriginalImage] as?
+        guard let selectedImage = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.originalImage)] as?
             UIImage else {
                 fatalError("Expected a dictionary containing an image, but was provided the following: \(info)")
         }
         // Set photoImageView to display the selected image.
         if isBoxClicked6 {
             narrativeIllustration.image = selectedImage
-            survey?.illustrationImage = selectedImage
-            checkBoxButton6.setImage(checkedBox, for: UIControlState.normal)
-            checkBoxButton7.setImage(uncheckedBox, for: UIControlState.normal)
+            survey?.illustrationImageAsData = selectedImage.jpegData(compressionQuality: 0.10)
+            checkBoxButton6.setImage(checkedBox, for: UIControl.State.normal)
+            checkBoxButton7.setImage(uncheckedBox, for: UIControl.State.normal)
             isBoxClicked6 = false
             survey?.illustration = true
+            save()
         }
         else if isAddLocationPhotoClicked {
             insertLocationPhoto(selectedImage: selectedImage)
         }
-        
+        // also save to camera roll as a back up should the app storage fail for some reason
+        if picker.sourceType == UIImagePickerController.SourceType.camera {
+            UIImageWriteToSavedPhotosAlbum(selectedImage, nil, nil, nil)
+        }
         // Dismiss the picker.
         dismiss(animated: true, completion: nil)
     }
-    
-    //MARK: Station Keywords
-    @IBOutlet weak var CategoryPicker: UIPickerView!
-    @IBOutlet weak var DescriptionBar: UITextField!
-    
-    var categories = ["1-Urban or Built-up", "2-Agricultural Land", "3-Rangeland", "4-Forest Land", "5-Water", "6-Wetland", "7-Barren Land", "8-Alpine Tundra","9-Perennial Snow/Ice", "Fire", "Change", "Artifacts"]
-    var keywords = [["11-Residential", "12-Commercial", "13-Industrial", "→ Forestry", "→ Mining", "→ Hydrocarbons", "→ Electricity", "14-Transportation, communications, and utilities", "15-Industrial and Commercial Complexes", "16-Mixed urban or built-up land", "17-Other urban or built-up land"], ["21-Cropland and pasture", "11-Orchards, groves, vineyards, nurseries, and ornamental areas", "23-Confined feeding operations", "24-Other Agricultural land"] , ["31-Herbaceous Rangeland", "32-Shrub and Brush Rangeland", "33-Mixed Rangeland"] , ["41-Deciduous Forest Land", "42-Evergreen Forest Land", "43-Mixed Forest Land"] , ["51-Streams and Canals", "52-Lakes", "53-Reservoirs", "54-Bays and Estuaries"] , ["61-Forested Wetland", "62-Non-Forested Wetland"] , ["71-Dry Salt Flats", "72-Beaches", "73-Sandy areas other than beaches", "74-Strip mines, quarries, and gravel pits", "76-Transitional areas", "77-Mixed Barren Land"] , ["81-Shrub and Bush Tundra", "82-Herbaceous Tundra", "83-Bare Ground Tundra", "84-Wet Tundra", "85-Mixed Tundra"] , ["91-Perennial Snowfields", "92-Glaciers"] , ["Fire"], ["Change advance", "Change Retreat", "Change Encroach", "Change Composition", "Change in Water"] , ["Human Subject", "Marker", "Equipment", "Historic Structure"]]
-    var categoryToShow = [String]()
-    
+
     //MARK: Pickerview Controls
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 2
@@ -837,8 +1846,6 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     // Capture the picker view selection
-    var categoryPicked = "1-Urban or Built-up"
-    var keywordpicked = "11-Residential"
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         // This method is triggered whenever the user makes a change to the picker selection.
         // The parameter named row and component represents what was selected.
@@ -934,787 +1941,29 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
             keywordpicked = categoryToShow[row]
         }
     }
-    
-    //MARK: Keyword table outlets and actions
-    @IBOutlet weak var KeywordTable: UITableView!
-    
-    var KeywordsData = [KeywordData]()
-    
-    @IBAction func addKeywordToTable(_ sender: Any) {
-        if isAddKeywordButtonClicked == true {
-            isAddKeywordButtonClicked = false
-        }
-        else {
-            isAddKeywordButtonClicked = true
-        }
-        if isAddKeywordButtonClicked == true {
-            if !categoryPicked.isEmpty && !keywordpicked.isEmpty {
-                insertNewKeyword()
-            }
-            isAddKeywordButtonClicked = false
-        }
-    }
-    
-    //Custom Keyword input
-    @IBOutlet weak var customKeyword: UITextField!
-    //Add a custom Keyword
-    @IBAction func addCustomKeyword(_ sender: Any) {
-        if isAddCustomKeywordClicked == true {
-            isAddCustomKeywordClicked = false
-        }
-        else {
-            isAddCustomKeywordClicked = true
-        }
-        if isAddCustomKeywordClicked == true {
-            if !customKeyword.text!.isEmpty {
-                insertCustomKeyword()
-            }
-            customKeyword.text = ""
-            DescriptionBar.text = ""
-            isAddCustomKeywordClicked = false
-        }
-    }
-    
-    //MARK: Table functions specifically for Keywords
-    //Insert selected Keyword
-    func insertNewKeyword() {
-        let newKeywordData = KeywordData(category: categoryPicked, keyword: keywordpicked, comment: DescriptionBar.text!)
-        
-        KeywordsData.insert(newKeywordData!, at: 0)
-        survey?.keywords = KeywordsData
-        let indexPath = IndexPath(row: 0, section: 0)
-        self.KeywordTable.insertRows(at: [indexPath], with: .automatic)
-    }
-    //Insert custom Keyword
-    func insertCustomKeyword() {
-        let newKeywordData = KeywordData(category: "Custom", keyword: customKeyword.text!, comment: DescriptionBar.text!)
-        
-        KeywordsData.insert(newKeywordData!, at: 0)
-        survey?.keywords = KeywordsData
-        let indexPath = IndexPath(row: 0, section: 0)
-        self.KeywordTable.insertRows(at: [indexPath], with: .automatic)
-    }
-    
-    // MARK: Location Tables
-    @IBOutlet weak var LocationDataTable: UITableView!
-    
-    var storedOffsets = [Int: CGFloat]()
-    
-    var LocationsData = [LocationData()]
-    
-    //Add location
-    @IBAction func AddLocation(_ sender: Any) {
-        if isAddLocationClicked == true {
-            isAddLocationClicked = false
-        }
-        else {
-            isAddLocationClicked = true
-        }
-        if isAddLocationClicked == true {
-            insertLocation()
-            isAddLocationClicked = false
-        }
-    }
-    
-    // MARK: Table functions specifically for Locations
-    func insertLocation() {
-        let newLocationData = LocationData()
-        
-        LocationsData.insert(newLocationData, at: 0)
-        survey?.locationsData = LocationsData
-        let indexPath = IndexPath(row: 0, section: 0)
-        self.LocationDataTable.insertRows(at: [indexPath], with: .automatic)
-    }
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let tableViewCell = cell as? LocationDataTableViewCell else { return }
-            
-        tableViewCell.setCollectionViewDataSourceDelegate(self, forRow: indexPath.row)
-        tableViewCell.collectionViewOffset = storedOffsets[indexPath.row] ?? 0
-    }
-    
-    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let tableViewCell = cell as? LocationDataTableViewCell else { return }
-        
-        storedOffsets[indexPath.row] = tableViewCell.collectionViewOffset
-    }
-    //rowSelectedInLocations keep track of rowselected for adding photos
-    var rowSelectedInLocations = 0
-    //MARK: Add location Photo to view
-    @IBAction func AddLocationPhoto(_ sender: Any) {
-        let touchPoint = (sender as AnyObject).convert(CGPoint.zero, to: self.LocationDataTable)
-        rowSelectedInLocations = (LocationDataTable.indexPathForRow(at: touchPoint)?.row)!
-        
-        if isAddLocationPhotoClicked == true {
-            isAddLocationPhotoClicked = false
-        }
-        else{
-            isAddLocationPhotoClicked = true
-        }
-        if isAddLocationPhotoClicked == true {
-            // prompt to select image
-            // UIImagePickerController is a view controller that lets a user pick media from their photo library.
-            let imagePickerController = UIImagePickerController()
-
-            // Make sure ViewController is notified when the user picks an image.
-            imagePickerController.delegate = self
-            imagePickerController.allowsEditing = true
-            imagePickerController.sourceType = UIImagePickerControllerSourceType.camera
-            present(imagePickerController, animated: true, completion: nil)
-        }
-    }
-    //MARK: Insert location photo into back data
-    func insertLocationPhoto(selectedImage: UIImage) {
-        if !LocationsData[rowSelectedInLocations].hasPhotos {
-            LocationsData[rowSelectedInLocations].locationPhotos?[0] = selectedImage
-        }
-        else {
-            if isALocationPhotoClicked {
-                LocationsData[locationPhotoClickedRow].locationPhotos?[locationPhotoClickedIndexPath] = selectedImage
-            }
-            else {
-                LocationsData[rowSelectedInLocations].locationPhotos?.insert(selectedImage, at: 0)
-            }
-        }
-        LocationsData[rowSelectedInLocations].hasPhotos = true
-        survey?.locationsData?[rowSelectedInLocations].locationPhotos = LocationsData[rowSelectedInLocations].locationPhotos
-        survey?.locationsData?[rowSelectedInLocations].hasPhotos = LocationsData[rowSelectedInLocations].hasPhotos
-
-        LocationDataTable.reloadData()
-        isAddLocationPhotoClicked = false
-        isALocationPhotoClicked = false
-    }
-    
-    //MARK: Latitude and longitude displays
-    //MARK: Lat and lon Fields
-    @IBOutlet weak var DDLat: UITextField!
-    @IBOutlet weak var DDLong: UITextField!
-    @IBOutlet weak var DMMLatDeg: UITextField!
-    @IBOutlet weak var DMMLatMin: UITextField!
-    @IBOutlet weak var DMMLatDir: UITextField!
-    @IBOutlet weak var DMMLonDeg: UITextField!
-    @IBOutlet weak var DMMLonMin: UITextField!
-    @IBOutlet weak var DMMLonDir: UITextField!
-    @IBOutlet weak var DMSLatDeg: UITextField!
-    @IBOutlet weak var DMSLatMin: UITextField!
-    @IBOutlet weak var DMSLatSec: UITextField!
-    @IBOutlet weak var DMSLatDir: UITextField!
-    @IBOutlet weak var DMSLonDeg: UITextField!
-    @IBOutlet weak var DMSLonMin: UITextField!
-    @IBOutlet weak var DMSLonSec: UITextField!
-    @IBOutlet weak var DMSLonDir: UITextField!
-    
-    @IBOutlet weak var getGPS: UIButton!
-    @IBAction func getGPSLocation(_ sender: Any) {
-        // Ask for Authorisation from the User.
-        self.locationManager.requestAlwaysAuthorization()
-        
-        // For use in foreground
-        self.locationManager.requestWhenInUseAuthorization()
-        
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.delegate = self as CLLocationManagerDelegate
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.requestAlwaysAuthorization()
-            locationManager.startUpdatingLocation()
-        }
-    }
-    
-
-    //MARK: TextFieldDelegate functions for lat/long
-    func updateAllLatFields(){
-        DDLat.text = String(format: "%.5f", (survey?.location?.latitude)!)
-        
-        let LatDegInt = abs(Int(Double((survey?.location?.latitude)!)))
-        let LatMinAbs = abs(Double((survey?.location?.latitudeMinutes)!))
-        let LatSecsAbs = abs(Double((survey?.location?.latitudeSeconds)!))
-        
-        DMMLatDeg.text = String(format: "%d", LatDegInt)
-        DMMLatMin.text = String(format: "%.4f", LatMinAbs)
-        DMMLatDir.text = survey!.location!.latitude >= 0 ? "N" : "S"
-        
-        DMSLatDeg.text = String(format: "%d", LatDegInt)
-        DMSLatMin.text = String(format: "%d", Int(LatMinAbs))
-        DMSLatSec.text = String(format: "%.1f", LatSecsAbs)
-        DMSLatDir.text = survey!.location!.latitude >= 0 ? "N" : "S"
-    }
-    func checkLatFields() {
-        if DDLat.text == "" {
-            DDLat.text = "0"
-        }
-        if DMMLatDeg.text == "" {
-            DMMLatDeg.text = "0"
-        }
-        if DMMLatMin.text == "" {
-            DMMLatMin.text = "0"
-        }
-        
-        if DMSLatDeg.text == "" {
-            DMSLatDeg.text = "0"
-        }
-        if DMSLatMin.text == "" {
-            DMSLatMin.text = "0"
-        }
-        if DMSLatSec.text == "" {
-            DMSLatSec.text = "0"
-        }
-    }
-    
-    func updateAllLonFields(){
-        DDLong.text = String(format: "%.5f", (survey?.location?.longitude)!)
-        
-        let LonDegInt = abs(Int(Double((survey?.location?.longitude)!)))
-        let LonMinAbs = abs(Double((survey?.location?.longitudeMinutes)!))
-        let LonSecsAbs = abs(Double((survey?.location?.longitudeSeconds)!))
-        
-        DMMLonDeg.text = String(format: "%d", LonDegInt)
-        DMMLonMin.text = String(format: "%.4f", LonMinAbs)
-        DMMLonDir.text = survey!.location!.longitude >= 0 ? "E" : "W"
-        
-        DMSLonDeg.text = String(format: "%d", LonDegInt)
-        DMSLonMin.text = String(format: "%d", Int(LonMinAbs))
-        DMSLonSec.text = String(format: "%.1f", LonSecsAbs)
-        DMSLonDir.text = survey!.location!.latitude >= 0 ? "E" : "W"
-    }
-    
-    func checkLonFields() {
-        if DDLong.text == "" {
-            DDLong.text = "0"
-        }
-        if DMMLonDeg.text == "" {
-            DMMLonDeg.text = "0"
-        }
-        if DMMLonMin.text == "" {
-            DMMLonMin.text = "0"
-        }
-        
-        if DMSLonDeg.text == "" {
-            DMSLonDeg.text = "0"
-        }
-        if DMSLonMin.text == "" {
-            DMSLonMin.text = "0"
-        }
-        if DMSLonSec.text == "" {
-            DMSLonSec.text = "0"
-        }
-    }
-
-    func isNumeric(a: String) -> Bool {
-        return Double(a) != nil
-    }
-    
-    func updateElevation() {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = NumberFormatter.Style.decimal
-        let elevationInMetres = round((survey?.elevationMetres!)!)
-        elevMetres.text = numberFormatter.string(from: NSNumber(value: elevationInMetres))
-        let elevationInFeet = round((survey?.elevationMetres!)! * 3.28084)
-        elevFT.text = numberFormatter.string(from: NSNumber(value: elevationInFeet))
-    }
-    
-    func combineDateWithTime(date: Date, time: Date) -> Date? {
-        let calendar = NSCalendar.current
-        
-        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-        let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: time)
-        
-        var mergedComponments = DateComponents()
-        mergedComponments.year = dateComponents.year!
-        mergedComponments.month = dateComponents.month!
-        mergedComponments.day = dateComponents.day!
-        mergedComponments.hour = timeComponents.hour!
-        mergedComponments.minute = timeComponents.minute!
-        mergedComponments.second = timeComponents.second!
-        
-        return calendar.date(from: mergedComponments)
-        
-        //https://gist.github.com/justinmfischer/0a6edf711569854c2537
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        updateSaveButtonState()
-        //MARK: Handle survey, year, and station input
-        if textField == self.HistoricSurveyName {
-            navigationItem.title = HistoricSurveyName.text
-            survey?.historicSurvey = HistoricSurveyName.text!
-        }
-        if textField == self.SurveyYear {
-            if SurveyYear.text == "" {
-                SurveyYear.text = "0"
-            }
-            survey?.year = Int(SurveyYear.text!)!
-        }
-        if textField == self.StationName {
-            survey?.stationName = StationName.text!
-        }
-        
-        //MARK: Handle date and times input
-        if textField == self.repeatDate {
-            survey?.repeatDate = combineDateWithTime(date: datePicker.date, time: (survey?.repeatDate)! as Date) as NSDate?
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateStyle = DateFormatter.Style.long
-            textField.text = dateFormatter.string(from: survey!.repeatDate! as Date)
-        }
-        
-        if textField == self.startTime {
-            survey?.repeatDate = combineDateWithTime(date: (survey?.repeatDate)! as Date, time: timePicker.date) as NSDate?
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "h:mm a"
-            textField.text = dateFormatter.string(from: survey!.repeatDate! as Date)
-        }
-        if textField == self.finishTime {
-            survey?.finishTime = combineDateWithTime(date: (survey?.repeatDate)! as Date, time: timePicker.date) as NSDate?
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "h:mm a"
-            textField.text = dateFormatter.string(from: survey!.finishTime! as Date)
-        }
-
-        //MARK: Handle DD input
-        if textField == self.DDLat {
-            checkLatFields()
-            if isNumeric(a: DDLat.text!) {
-                if Double(DDLat.text!) != 0.0 {
-                    survey?.location?.latitude = Double(DDLat.text!)!
-                }
-                else {
-                    survey?.location?.latitude = 0
-                }
-            }
-            else {
-                DDLat.text = ""
-            }
-            updateAllLatFields()
-        }
-        if textField == self.DDLong {
-            checkLonFields()
-            if isNumeric(a: DDLong.text!) {
-                survey?.location?.longitude = Double(DDLong.text!)!
-            }
-            else {
-                DDLong.text = ""
-            }
-            updateAllLonFields()
-        }
-        
-        //MARK: Handle DMM input
-        if textField == self.DMMLatDeg {
-            checkLatFields()
-            if isNumeric(a: DMMLatDeg.text!) {
-                survey?.location?.latitude = DMMtoDD(latDeg: Double(DMMLatDeg.text!)!, latMin: Double(DMMLatMin.text!)!, latDir: DMMLatDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
-            }
-            else {
-                DMMLatDeg.text = ""
-            }
-            updateAllLatFields()
-        }
-        if textField == self.DMMLatMin {
-            checkLatFields()
-            if isNumeric(a: DMMLatMin.text!) {
-                survey?.location?.latitude = DMMtoDD(latDeg: Double(DMMLatDeg.text!)!, latMin: Double(DMMLatMin.text!)!, latDir: DMMLatDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
-            }
-            else {
-                DMMLatMin.text = ""
-            }
-            updateAllLatFields()
-        }
-        if textField == self.DMMLatDir && DMMLatDir.text != "" {
-            checkLatFields()
-            survey?.location?.latitude = DMMtoDD(latDeg: Double(DMMLatDeg.text!)!, latMin: Double(DMMLatMin.text!)!, latDir: DMMLatDir.text, longDeg: 0, longMin: 0, longDir: "").latitude
-            updateAllLatFields()
-        }
-        if textField == self.DMMLonDeg {
-            checkLonFields()
-            if isNumeric(a: DMMLonDeg.text!) {
-                survey?.location?.longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(DMMLonDeg.text!)!, longMin: Double(DMMLonMin.text!)!, longDir: DMMLonDir.text).longitude
-            }
-            else {
-                DMMLonDeg.text = ""
-            }
-            updateAllLonFields()
-        }
-        if textField == self.DMMLonMin {
-            checkLonFields()
-            if isNumeric(a: DMMLonMin.text!) {
-                survey?.location?.longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(DMMLonDeg.text!)!, longMin: Double(DMMLonMin.text!)!, longDir: DMMLonDir.text).longitude
-            }
-            else {
-                DMMLonMin.text = ""
-            }
-            updateAllLonFields()
-        }
-        if textField == self.DMMLonDir && DMMLonDir.text != "" {
-            checkLonFields()
-            survey?.location?.longitude = DMMtoDD(latDeg: 0, latMin: 0, latDir: "", longDeg: Double(DMMLonDeg.text!)!, longMin: Double(DMMLonMin.text!)!, longDir: DMMLonDir.text).longitude
-            updateAllLonFields()
-        }
-
-        //MARK: Handle DMS input
-        if textField == self.DMSLatDeg {
-            checkLatFields()
-            if isNumeric(a: DMSLatDeg.text!) {
-                survey?.location?.latitude = DMStoDD(latDeg: Double(DMSLatDeg.text!)!, latMin: Double(DMSLatMin.text!)!, latSec: Double(DMSLatSec.text!)!, latDir: DMSLatDir.text, longDeg: 0, longMin: 0, longSec: 0, longDir: "").latitude
-            }
-            else {
-                DMSLatDeg.text = ""
-            }
-            updateAllLatFields()
-        }
-        if textField == self.DMSLatMin {
-            checkLatFields()
-            if isNumeric(a: DMSLatMin.text!) {
-                survey?.location?.latitude = DMStoDD(latDeg: Double(DMSLatDeg.text!)!, latMin: Double(DMSLatMin.text!)!, latSec: Double(DMSLatSec.text!)!, latDir: DMSLatDir.text, longDeg: 0, longMin: 0, longSec: 0, longDir: "").latitude
-            }
-            else{
-                DMSLatMin.text = ""
-            }
-            updateAllLatFields()
-        }
-        if textField == self.DMSLatSec {
-            checkLatFields()
-            if isNumeric(a: DMSLatSec.text!) {
-                survey?.location?.latitude = DMStoDD(latDeg: Double(DMSLatDeg.text!)!, latMin: Double(DMSLatMin.text!)!, latSec: Double(DMSLatSec.text!)!, latDir: DMSLatDir.text, longDeg: 0, longMin: 0, longSec: 0, longDir: "").latitude
-            }
-            else{
-                DMSLatSec.text = ""
-            }
-            updateAllLatFields()
-        }
-        if textField == self.DMSLatDir && DMMLatDir.text != "" {
-            checkLatFields()
-            survey?.location?.latitude = DMStoDD(latDeg: Double(DMSLatDeg.text!)!, latMin: Double(DMSLatMin.text!)!, latSec: Double(DMSLatSec.text!)!, latDir: DMSLatDir.text, longDeg: 0, longMin: 0, longSec: 0, longDir: "").latitude
-            updateAllLatFields()
-        }
-        if textField == self.DMSLonDeg {
-            checkLonFields()
-            if isNumeric(a: DMSLonDeg.text!) {
-                survey?.location?.longitude = DMStoDD(latDeg: 0, latMin: 0, latSec: 0, latDir: "", longDeg: Double(DMSLonDeg.text!)!, longMin: Double(DMSLonMin.text!)!, longSec: Double(DMSLonSec.text!)!, longDir: DMSLonDir.text).longitude
-            }
-            else {
-                DMSLonDeg.text = ""
-            }
-            updateAllLonFields()
-        }
-        if textField == self.DMSLonMin {
-            checkLonFields()
-            if isNumeric(a: DMSLonMin.text!) {
-                survey?.location?.longitude = DMStoDD(latDeg: 0, latMin: 0, latSec: 0, latDir: "", longDeg: Double(DMSLonDeg.text!)!, longMin: Double(DMSLonMin.text!)!, longSec: Double(DMSLonSec.text!)!, longDir: DMSLonDir.text).longitude
-            }
-            else {
-                DMSLonMin.text = ""
-            }
-            updateAllLonFields()
-        }
-        if textField == self.DMSLonSec {
-            checkLonFields()
-            if isNumeric(a: DMSLonSec.text!) {
-                survey?.location?.longitude = DMStoDD(latDeg: 0, latMin: 0, latSec: 0, latDir: "", longDeg: Double(DMSLonDeg.text!)!, longMin: Double(DMSLonMin.text!)!, longSec: Double(DMSLonSec.text!)!, longDir: DMSLonDir.text).longitude
-            }
-            else {
-                DMSLonSec.text = ""
-            }
-            updateAllLonFields()
-        }
-        if textField == self.DMSLonDir && DMSLonDir.text != "" {
-            checkLonFields()
-            survey?.location?.longitude = DMStoDD(latDeg: 0, latMin: 0, latSec: 0, latDir: "", longDeg: Double(DMSLonDeg.text!)!, longMin: Double(DMSLonMin.text!)!, longSec: Double(DMSLonSec.text!)!, longDir: DMSLonDir.text).longitude
-            updateAllLonFields()
-        }
-        
-        if textField == self.pilotName {
-            survey?.pilot = pilotName.text
-        }
-        if textField == self.rwCallSign {
-            survey?.rwCallSign = rwCallSign.text
-        }
-        
-        if textField == self.windSpeed {
-            if windSpeed.text == "" {
-                windSpeed.text = "0"
-            }
-            if isNumeric(a: windSpeed.text!) {
-                survey?.averageWindSpeed = Double(windSpeed.text!)!
-            }
-            windSpeed.text = String(format: "%.1f", (survey?.averageWindSpeed!)!)
-        }
-        if textField == self.temp {
-            if temp.text == "" {
-                temp.text = "0"
-            }
-            if isNumeric(a: temp.text!) {
-                survey?.temperature = Double(temp.text!)!
-            }
-            temp.text = String(format: "%.1f", (survey?.temperature!)!)
-        }
-        if textField == self.baroPress {
-            if baroPress.text == "" {
-                baroPress.text = "0"
-            }
-            if isNumeric(a: baroPress.text!) {
-                survey?.barometricPressure = Double(baroPress.text!)!
-            }
-            baroPress.text = String(format: "%.1f", (survey?.barometricPressure!)!)
-        }
-        if textField == self.gustSpeed {
-            if gustSpeed.text == "" {
-                gustSpeed.text = "0"
-            }
-            if isNumeric(a: gustSpeed.text!) {
-                survey?.maximumGustSpeed = Double(gustSpeed.text!)!
-            }
-            gustSpeed.text = String(format: "%.1f", (survey?.maximumGustSpeed!)!)
-        }
-        if textField == self.humidity {
-            if humidity.text == "" {
-                humidity.text = "0"
-            }
-            if isNumeric(a: humidity.text!) {
-                survey?.relativeHumidity = Double(humidity.text!)!
-            }
-            humidity.text = String(format: "%.1f", (survey?.relativeHumidity!)!)
-        }
-        if textField == self.wetBulb {
-            if wetBulb.text == "" {
-                wetBulb.text = "0"
-            }
-            if isNumeric(a: wetBulb.text!) {
-                survey?.wetBulbReading = Double(wetBulb.text!)!
-            }
-            wetBulb.text = String(format: "%.1f", (survey?.wetBulbReading!)!)
-        }
-
-        if textField == self.locOtherInput {
-            survey?.locOther = locOtherInput.text
-        }
-        if textField == self.camOtherInput {
-            survey?.camOther = camOtherInput.text
-        }
-        
-        if textField == self.elevMetres {
-            if elevMetres.text == "" {
-                elevMetres.text = "0"
-            }
-            elevMetres.text = elevMetres.text?.replacingOccurrences(of: ",", with: "")
-            if isNumeric(a: elevMetres.text!) {
-                survey?.elevationMetres = Double(elevMetres.text!)
-            }
-            updateElevation()
-        }
-        if textField == self.elevFT {
-            if elevFT.text == "" {
-                elevFT.text = "0"
-            }
-            elevFT.text = elevFT.text?.replacingOccurrences(of: ",", with: "")
-            if isNumeric(a: elevFT.text!) {
-                survey?.elevationMetres = Double(elevFT.text!)! / 3.28084
-            }
-            updateElevation()
-        }
-        if textField == self.elevComments {
-            survey?.elevationComments = elevComments.text
-        }
-        
-        if textField == self.cardNumber {
-            if cardNumber.text == "" {
-                cardNumber.text = "0"
-            }
-            if isNumeric(a: cardNumber.text!) {
-                survey?.cardNumber = Int(cardNumber.text!)
-            }
-            else {
-                cardNumber.text = String(format: "%d", (survey?.cardNumber)!)
-            }
-        }
-        
-        if textField == self.author {
-            survey?.author = author.text
-        }
-        if textField == self.photographer {
-            survey?.photographer = photographer.text
-        }
-        
-        let touchPoint = (textField).convert(CGPoint.zero, to: self.LocationDataTable)
-        let indexPath = LocationDataTable.indexPathForRow(at: touchPoint)
-        if indexPath != nil {
-            let cell = LocationDataTable.cellForRow(at: indexPath!) as! LocationDataTableViewCell
-            if textField == cell.LocationName {
-            survey?.locationsData?[(indexPath?.row)!].locationName = textField.text!
-            }
-        }
-    }
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        // Hide the keyboard.
-        textField.resignFirstResponder()
-        return true
-    }
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        DispatchQueue.main.async {
-            textView.selectAll(nil)
-        }
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView == self.stationNarrative {
-            survey?.stationNarrative = stationNarrative.text
-            if survey?.hikingParty != nil && textView.text != "" {
-                let possibleAuthors = survey?.hikingParty
-                let alert = UIAlertController(title: "Author?", message: "Who authored this narrative?", preferredStyle: UIAlertControllerStyle.alert)
-                
-                // add the actions (buttons)
-                for author in possibleAuthors! {
-                    alert.addAction(UIAlertAction(title: author, style: .default, handler: { (action: UIAlertAction!) in
-                        self.survey?.stationNarrative = (self.survey?.stationNarrative)! + "\n~\(author)"
-                        self.stationNarrative.text = self.survey?.stationNarrative
-                    }))
-                }
-                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
-                }))
-                // show the alert
-                present(alert, animated: true, completion: nil)
-            }
-        }
-        
-        if textView == self.weatherNarrative {
-            survey?.weatherNarrative = weatherNarrative.text
-            if survey?.hikingParty != nil && textView.text != "" {
-                let possibleAuthors = survey?.hikingParty
-                let alert = UIAlertController(title: "Author?", message: "Who authored this narrative?", preferredStyle: UIAlertControllerStyle.alert)
-                
-                // add the actions (buttons)
-                for author in possibleAuthors! {
-                    alert.addAction(UIAlertAction(title: author, style: .default, handler: { (action: UIAlertAction!) in
-                        self.survey?.weatherNarrative = (self.survey?.weatherNarrative)! + "\n~\(author)"
-                        self.weatherNarrative.text = self.survey?.weatherNarrative
-                    }))
-                }
-                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
-                }))
-                // show the alert
-                present(alert, animated: true, completion: nil)
-            }
-        }
-        
-        let touchPoint = (textView).convert(CGPoint.zero, to: self.LocationDataTable)
-        let indexPath = LocationDataTable.indexPathForRow(at: touchPoint)
-        if indexPath != nil {
-            let cell = LocationDataTable.cellForRow(at: indexPath!) as! LocationDataTableViewCell
-            if textView == cell.LocationNarrative {
-                survey?.locationsData?[(indexPath?.row)!].locationNarrative = textView.text!
-                if survey?.hikingParty != nil && textView.text != ""  {
-                    let possibleAuthors = survey?.hikingParty
-                    let alert = UIAlertController(title: "Author?", message: "Who authored this narrative?", preferredStyle: UIAlertControllerStyle.alert)
-                    
-                    // add the actions (buttons)
-                    for author in possibleAuthors! {
-                        alert.addAction(UIAlertAction(title: author, style: .default, handler: { (action: UIAlertAction!) in
-                            self.survey?.locationsData?[(indexPath?.row)!].locationNarrative = (self.survey?.locationsData?[(indexPath?.row)!].locationNarrative)! + "\n~\(author)"
-                            textView.text = self.survey?.locationsData?[(indexPath?.row)!].locationNarrative
-                        }))
-                    }
-                    alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
-                    }))
-                    // show the alert
-                    present(alert, animated: true, completion: nil)
-                }
-            }
-        }
-    }
-    //MARK: SaveButton controls
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        if textField == self.hikingDetails {
-            performSegue(withIdentifier: "popoverSegue", sender: nil)
-        }
-        if textField == self.author {
-            if survey?.hikingParty != nil {
-                let possibleAuthors = survey?.hikingParty
-                let alert = UIAlertController(title: "Author?", message: "Who was the primary author of this document?", preferredStyle: UIAlertControllerStyle.alert)
-                
-                // add the actions (buttons)
-                for author in possibleAuthors! {
-                    alert.addAction(UIAlertAction(title: author, style: .default, handler: { (action: UIAlertAction!) in
-                        self.survey?.author = author
-                        self.author.text = self.survey?.author
-                    }))
-                }
-                alert.addAction(UIAlertAction(title: "Clear", style: .cancel, handler: { (action: UIAlertAction!) in
-                    self.survey?.author = ""
-                    self.author.text = ""
-
-                }))
-                // show the alert
-                present(alert, animated: true, completion: nil)
-            }
-        }
-        if textField == self.photographer {
-            if survey?.hikingParty != nil {
-                let possiblePhotgraphers = survey?.hikingParty
-                let alert = UIAlertController(title: "Photographer?", message: "Who was the primary photographer?", preferredStyle: UIAlertControllerStyle.alert)
-                
-                // add the actions (buttons)
-                for photographer in possiblePhotgraphers! {
-                    alert.addAction(UIAlertAction(title: photographer, style: .default, handler: { (action: UIAlertAction!) in
-                        self.survey?.photographer = photographer
-                        self.photographer.text = self.survey?.photographer
-                    }))
-                }
-                alert.addAction(UIAlertAction(title: "Clear", style: .cancel, handler: { (action: UIAlertAction!) in
-                    self.survey?.photographer = ""
-                    self.photographer.text = ""
-                }))
-                // show the alert
-                present(alert, animated: true, completion: nil)
-            }
-        }
-        
-        textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
-        // Disable the Save button while editing.
-        saveButton.isEnabled = false
-        saveButtonBottom.isEnabled = false
-    }
-    private func updateSaveButtonState() {
-        // Disable the Save button if the text field is empty.
-        let text1 = HistoricSurveyName.text ?? ""
-        let text2 = SurveyYear.text ?? ""
-        let text3 = StationName.text ?? ""
-        
-        saveButton.isEnabled = !text1.isEmpty && !text2.isEmpty && !text3.isEmpty
-        saveButtonBottom.isEnabled = !text1.isEmpty && !text2.isEmpty && !text3.isEmpty
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
-    {
-        let location = locations.last! as CLLocation
-        
-        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
-        survey?.location = center
-        updateAllLatFields()
-        updateAllLonFields()
-        narrativeMap.setRegion(region, animated: true)
-        locationManager.stopUpdatingLocation()
-    }
-    
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return self.view
-    }
 }
 
 //MARK: Extend DetailViewController to conform to collectionView protocols
 extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return LocationsData[collectionView.tag].locationPhotos!.count
+        return LocationsData[collectionView.tag].locationPhotosAsData.count
     }
     
     // Display images in Collection Cells
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "LocationPhotosCollectionViewCell", for: indexPath) as! LocationPhotosCollectionViewCell
-        
-        cell.imageView.image = LocationsData[collectionView.tag].locationPhotos![indexPath.item]
-        
+        if LocationsData[collectionView.tag].locationPhotosAsData.indices.contains(indexPath.item){
+            cell.imageView.image = UIImage(data: LocationsData[collectionView.tag].locationPhotosAsData[indexPath.item]!)
+        }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         print("Collection view at row \(collectionView.tag) selected index path \(indexPath)")
         let touchPoint = (collectionView.cellForItem(at: indexPath) as AnyObject).convert(CGPoint.zero, to: self.LocationDataTable)
+        if LocationDataTable.indexPathForRow(at: touchPoint)?.row == nil{
+            return
+        }
         rowSelectedInLocations = (LocationDataTable.indexPathForRow(at: touchPoint)?.row)!
         isALocationPhotoClicked = true
         isAddLocationPhotoClicked = true
@@ -1725,13 +1974,44 @@ extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSo
         // Make sure ViewController is notified when the user picks an image.
         imagePickerController.delegate = self
         imagePickerController.allowsEditing = true
-        imagePickerController.sourceType = UIImagePickerControllerSourceType.camera
-        present(imagePickerController, animated: true, completion: nil)
+        let alert = UIAlertController(title: "Image Source?", message: "Would you like to take a new photo, or use one saved on the iPad?", preferredStyle: UIAlertController.Style.alert)
+        
+        // add the actions (buttons)
+        alert.addAction(UIAlertAction(title: "Take new photo", style: .default, handler: { (action: UIAlertAction!) in
+            imagePickerController.sourceType = UIImagePickerController.SourceType.camera
+            self.present(imagePickerController, animated: true, completion: nil)
+        }))
+        alert.addAction(UIAlertAction(title: "Use saved photo", style: .default, handler: { (action: UIAlertAction!) in
+            imagePickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
+            self.present(imagePickerController, animated: true, completion: nil)
+        }))
+        alert.addAction(UIAlertAction(title: "Just view current image", style: .default, handler: { (action: UIAlertAction!) in
+            let imageView =  UIImage(data: self.LocationsData[self.rowSelectedInLocations].locationPhotosAsData[self.locationPhotoClickedIndexPath]!)
+            //convert above to use locationPhotosAsData
+            let newImageView = UIImageView(image: imageView)
+            newImageView.frame = UIScreen.main.bounds
+            newImageView.backgroundColor = .black
+            newImageView.contentMode = .scaleAspectFit
+            newImageView.isUserInteractionEnabled = true
+            let tap = UITapGestureRecognizer(target: self, action: #selector(self.dismissFullscreenImage))
+            newImageView.addGestureRecognizer(tap)
+            self.view.addSubview(newImageView)
+            self.navigationController?.isNavigationBarHidden = true
+            self.tabBarController?.tabBar.isHidden = true
+            
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
+        }))
+        
+        // show the alert
+        present(alert, animated: true, completion: nil)
     }
+    
 }
 
+//MARK: Make the background image scale to screen size
 extension UIView {
-    func addBackground(imageName: String = "YOUR DEFAULT IMAGE NAME", contextMode: UIViewContentMode = .scaleToFill) {
+    func addBackground(imageName: String = "YOUR DEFAULT IMAGE NAME", contextMode: UIView.ContentMode = .scaleToFill) {
         // setup the UIImageView
         let backgroundImageView = UIImageView(frame: UIScreen.main.bounds)
         backgroundImageView.image = UIImage(named: imageName)
@@ -1739,7 +2019,7 @@ extension UIView {
         backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(backgroundImageView)
-        sendSubview(toBack: backgroundImageView)
+        sendSubviewToBack(backgroundImageView)
         
         // adding NSLayoutConstraints
         let leadingConstraint = NSLayoutConstraint(item: backgroundImageView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1.0, constant: 0.0)
@@ -1751,6 +2031,7 @@ extension UIView {
     }
 } // http://stackoverflow.com/questions/27153181/how-do-you-make-a-background-image-scale-to-screen-size-in-swift
 
+//MARK: Close iOS keyboard by touching anywhere
 extension UIViewController {
     func hideKeyboardWhenTappedAround() {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
@@ -1758,7 +2039,35 @@ extension UIViewController {
         view.addGestureRecognizer(tap)
     }
     
-    func dismissKeyboard() {
+    @objc func dismissKeyboard() {
         view.endEditing(true)
     }
 }//http://stackoverflow.com/questions/24126678/close-ios-keyboard-by-touching-anywhere-using-swift
+
+func createPdfFromView(aView: UIView, saveToDocumentsWithFileName fileName: String)
+{
+    let pdfData = NSMutableData()
+    UIGraphicsBeginPDFContextToData(pdfData, aView.bounds, nil)
+    UIGraphicsBeginPDFPage()
+    
+    guard let pdfContext = UIGraphicsGetCurrentContext() else { return }
+    
+    aView.layer.render(in: pdfContext)
+    UIGraphicsEndPDFContext() //specifically this?
+    
+    if let documentDirectories = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
+        let documentsFileName = documentDirectories + "/" + fileName
+        debugPrint(documentsFileName)
+        pdfData.write(toFile: documentsFileName, atomically: true)
+    }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
+	return input.rawValue
+}

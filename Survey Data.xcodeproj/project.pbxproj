@@ -7,14 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		781122E21F15267B002D0CCE /* CameraTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781122E11F15267B002D0CCE /* CameraTableViewController.swift */; };
+		781122E41F152699002D0CCE /* CameraNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781122E31F152699002D0CCE /* CameraNames.swift */; };
+		781122E61F15281F002D0CCE /* CamerasTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781122E51F15281F002D0CCE /* CamerasTableViewCell.swift */; };
+		781122E81F15B50A002D0CCE /* SurveyTextOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781122E71F15B50A002D0CCE /* SurveyTextOnly.swift */; };
 		C32A3C1F1EB01B340070066E /* LocationPhotosCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A3C1E1EB01B340070066E /* LocationPhotosCollectionViewCell.swift */; };
 		C32A3C211EB290650070066E /* TeamTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A3C201EB290650070066E /* TeamTableViewController.swift */; };
 		C32A3C231EB2951C0070066E /* MLPTeamTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A3C221EB2951C0070066E /* MLPTeamTableViewCell.swift */; };
 		C32A3C251EB2D74F0070066E /* TeamNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32A3C241EB2D74F0070066E /* TeamNames.swift */; };
 		C34C60801E83017F00B90FD9 /* KeywordTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34C607F1E83017F00B90FD9 /* KeywordTableViewCell.swift */; };
 		C34C60821E8313E000B90FD9 /* KeywordData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34C60811E8313E000B90FD9 /* KeywordData.swift */; };
-		C3973D111E7B7A1E004C82DB /* TemplateForTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3973D101E7B7A1E004C82DB /* TemplateForTableViewController.swift */; };
-		C3973D131E7B7A3B004C82DB /* TemplateForTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3973D121E7B7A3B004C82DB /* TemplateForTableViewCell.swift */; };
+		C3735A6F1ED7717F008C2867 /* SurveyorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3735A6E1ED7717F008C2867 /* SurveyorsViewController.swift */; };
+		C3735A711ED77395008C2867 /* SurveyorTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3735A701ED77395008C2867 /* SurveyorTableViewCell.swift */; };
+		C3735A731ED79E79008C2867 /* SurveysViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3735A721ED79E79008C2867 /* SurveysViewController.swift */; };
+		C3735A751ED7A93A008C2867 /* DatesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3735A741ED7A93A008C2867 /* DatesViewController.swift */; };
+		C3CB22721F57396100F4AD1D /* SurveySaveList.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3CB22711F57396100F4AD1D /* SurveySaveList.swift */; };
 		C3E555611E92F09300AB01E9 /* SurveyTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E555601E92F09300AB01E9 /* SurveyTableViewCell.swift */; };
 		C3E555641E9454F900AB01E9 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3E555631E9454F900AB01E9 /* MapKit.framework */; };
 		C3F102201E6F498600EB1B4E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F1021F1E6F498600EB1B4E /* AppDelegate.swift */; };
@@ -30,6 +37,8 @@
 		C3F1028A1E79CFB500EB1B4E /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F102891E79CFB500EB1B4E /* LocationData.swift */; };
 		C3F103221E7B774C00EB1B4E /* LocationDataTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F1031F1E7B774C00EB1B4E /* LocationDataTableViewCell.swift */; };
 		C3F103241E7B774C00EB1B4E /* RepeatImageDataViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F103211E7B774C00EB1B4E /* RepeatImageDataViewCell.swift */; };
+		C3F313B21ECE44820045528E /* MapViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F313B11ECE44820045528E /* MapViewCell.swift */; };
+		C3F313B41ECF7D330045528E /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F313B31ECF7D330045528E /* MapViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,14 +59,21 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		781122E11F15267B002D0CCE /* CameraTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraTableViewController.swift; sourceTree = "<group>"; };
+		781122E31F152699002D0CCE /* CameraNames.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraNames.swift; sourceTree = "<group>"; };
+		781122E51F15281F002D0CCE /* CamerasTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CamerasTableViewCell.swift; sourceTree = "<group>"; };
+		781122E71F15B50A002D0CCE /* SurveyTextOnly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyTextOnly.swift; sourceTree = "<group>"; };
 		C32A3C1E1EB01B340070066E /* LocationPhotosCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationPhotosCollectionViewCell.swift; sourceTree = "<group>"; };
 		C32A3C201EB290650070066E /* TeamTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamTableViewController.swift; sourceTree = "<group>"; };
 		C32A3C221EB2951C0070066E /* MLPTeamTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MLPTeamTableViewCell.swift; sourceTree = "<group>"; };
 		C32A3C241EB2D74F0070066E /* TeamNames.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamNames.swift; sourceTree = "<group>"; };
 		C34C607F1E83017F00B90FD9 /* KeywordTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeywordTableViewCell.swift; sourceTree = "<group>"; };
 		C34C60811E8313E000B90FD9 /* KeywordData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeywordData.swift; sourceTree = "<group>"; };
-		C3973D101E7B7A1E004C82DB /* TemplateForTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplateForTableViewController.swift; sourceTree = "<group>"; };
-		C3973D121E7B7A3B004C82DB /* TemplateForTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplateForTableViewCell.swift; sourceTree = "<group>"; };
+		C3735A6E1ED7717F008C2867 /* SurveyorsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyorsViewController.swift; sourceTree = "<group>"; };
+		C3735A701ED77395008C2867 /* SurveyorTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyorTableViewCell.swift; sourceTree = "<group>"; };
+		C3735A721ED79E79008C2867 /* SurveysViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveysViewController.swift; sourceTree = "<group>"; };
+		C3735A741ED7A93A008C2867 /* DatesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatesViewController.swift; sourceTree = "<group>"; };
+		C3CB22711F57396100F4AD1D /* SurveySaveList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveySaveList.swift; sourceTree = "<group>"; };
 		C3E555601E92F09300AB01E9 /* SurveyTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyTableViewCell.swift; sourceTree = "<group>"; };
 		C3E555631E9454F900AB01E9 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		C3F1021C1E6F498600EB1B4E /* Survey Data.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Survey Data.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,6 +95,8 @@
 		C3F102891E79CFB500EB1B4E /* LocationData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
 		C3F1031F1E7B774C00EB1B4E /* LocationDataTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationDataTableViewCell.swift; sourceTree = "<group>"; };
 		C3F103211E7B774C00EB1B4E /* RepeatImageDataViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepeatImageDataViewCell.swift; sourceTree = "<group>"; };
+		C3F313B11ECE44820045528E /* MapViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewCell.swift; sourceTree = "<group>"; };
+		C3F313B31ECF7D330045528E /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,8 +159,16 @@
 			children = (
 				C3F1021F1E6F498600EB1B4E /* AppDelegate.swift */,
 				C3F102211E6F498600EB1B4E /* MasterViewController.swift */,
+				C3F313B11ECE44820045528E /* MapViewCell.swift */,
+				C3F313B31ECF7D330045528E /* MapViewController.swift */,
+				C3735A741ED7A93A008C2867 /* DatesViewController.swift */,
+				C3735A701ED77395008C2867 /* SurveyorTableViewCell.swift */,
+				C3735A6E1ED7717F008C2867 /* SurveyorsViewController.swift */,
+				C3735A721ED79E79008C2867 /* SurveysViewController.swift */,
 				C3F102231E6F498600EB1B4E /* DetailViewController.swift */,
 				C3F102851E79BDAF00EB1B4E /* Survey.swift */,
+				C3CB22711F57396100F4AD1D /* SurveySaveList.swift */,
+				781122E71F15B50A002D0CCE /* SurveyTextOnly.swift */,
 				C3E555601E92F09300AB01E9 /* SurveyTableViewCell.swift */,
 				C3F102871E79C62000EB1B4E /* RepeatImageData.swift */,
 				C3F103211E7B774C00EB1B4E /* RepeatImageDataViewCell.swift */,
@@ -154,12 +180,13 @@
 				C32A3C221EB2951C0070066E /* MLPTeamTableViewCell.swift */,
 				C32A3C201EB290650070066E /* TeamTableViewController.swift */,
 				C32A3C241EB2D74F0070066E /* TeamNames.swift */,
+				781122E51F15281F002D0CCE /* CamerasTableViewCell.swift */,
+				781122E11F15267B002D0CCE /* CameraTableViewController.swift */,
+				781122E31F152699002D0CCE /* CameraNames.swift */,
 				C3F102251E6F498600EB1B4E /* Main.storyboard */,
 				C3F1027F1E6FAE0900EB1B4E /* Assets.xcassets */,
 				C3F1022A1E6F498600EB1B4E /* LaunchScreen.storyboard */,
 				C3F1022D1E6F498700EB1B4E /* Info.plist */,
-				C3973D101E7B7A1E004C82DB /* TemplateForTableViewController.swift */,
-				C3973D121E7B7A3B004C82DB /* TemplateForTableViewCell.swift */,
 			);
 			path = "Survey Data";
 			sourceTree = "<group>";
@@ -251,6 +278,7 @@
 					C3F1021B1E6F498600EB1B4E = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = 943883D2U7;
+						LastSwiftMigration = 1010;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Maps.iOS = {
@@ -260,11 +288,13 @@
 					};
 					C3F102311E6F498700EB1B4E = {
 						CreatedOnToolsVersion = 8.2.1;
+						LastSwiftMigration = 1010;
 						ProvisioningStyle = Automatic;
 						TestTargetID = C3F1021B1E6F498600EB1B4E;
 					};
 					C3F1023C1E6F498700EB1B4E = {
 						CreatedOnToolsVersion = 8.2.1;
+						LastSwiftMigration = 1010;
 						ProvisioningStyle = Automatic;
 						TestTargetID = C3F1021B1E6F498600EB1B4E;
 					};
@@ -324,21 +354,30 @@
 			files = (
 				C3F103241E7B774C00EB1B4E /* RepeatImageDataViewCell.swift in Sources */,
 				C3F1028A1E79CFB500EB1B4E /* LocationData.swift in Sources */,
+				C3CB22721F57396100F4AD1D /* SurveySaveList.swift in Sources */,
 				C3F102241E6F498600EB1B4E /* DetailViewController.swift in Sources */,
+				C3F313B21ECE44820045528E /* MapViewCell.swift in Sources */,
 				C3E555611E92F09300AB01E9 /* SurveyTableViewCell.swift in Sources */,
 				C34C60821E8313E000B90FD9 /* KeywordData.swift in Sources */,
 				C3F102861E79BDAF00EB1B4E /* Survey.swift in Sources */,
+				C3F313B41ECF7D330045528E /* MapViewController.swift in Sources */,
 				C3F102221E6F498600EB1B4E /* MasterViewController.swift in Sources */,
-				C3973D131E7B7A3B004C82DB /* TemplateForTableViewCell.swift in Sources */,
 				C32A3C251EB2D74F0070066E /* TeamNames.swift in Sources */,
+				781122E21F15267B002D0CCE /* CameraTableViewController.swift in Sources */,
 				C32A3C231EB2951C0070066E /* MLPTeamTableViewCell.swift in Sources */,
 				C32A3C1F1EB01B340070066E /* LocationPhotosCollectionViewCell.swift in Sources */,
+				C3735A6F1ED7717F008C2867 /* SurveyorsViewController.swift in Sources */,
+				781122E81F15B50A002D0CCE /* SurveyTextOnly.swift in Sources */,
 				C32A3C211EB290650070066E /* TeamTableViewController.swift in Sources */,
-				C3973D111E7B7A1E004C82DB /* TemplateForTableViewController.swift in Sources */,
 				C3F103221E7B774C00EB1B4E /* LocationDataTableViewCell.swift in Sources */,
+				C3735A711ED77395008C2867 /* SurveyorTableViewCell.swift in Sources */,
+				C3735A751ED7A93A008C2867 /* DatesViewController.swift in Sources */,
 				C3F102881E79C62000EB1B4E /* RepeatImageData.swift in Sources */,
 				C3F102201E6F498600EB1B4E /* AppDelegate.swift in Sources */,
+				781122E61F15281F002D0CCE /* CamerasTableViewCell.swift in Sources */,
+				C3735A731ED79E79008C2867 /* SurveysViewController.swift in Sources */,
 				C34C60801E83017F00B90FD9 /* KeywordTableViewCell.swift in Sources */,
+				781122E41F152699002D0CCE /* CameraNames.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -433,7 +472,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -477,7 +516,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -492,10 +531,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 943883D2U7;
 				INFOPLIST_FILE = "Survey Data/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "MLP.Survey-Data";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -505,10 +547,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 943883D2U7;
 				INFOPLIST_FILE = "Survey Data/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "MLP.Survey-Data";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
@@ -521,7 +566,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "MLP.Survey-DataTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.2;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Survey Data.app/Survey Data";
 			};
 			name = Debug;
@@ -535,7 +581,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "MLP.Survey-DataTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.2;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Survey Data.app/Survey Data";
 			};
 			name = Release;
@@ -548,7 +595,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "MLP.Survey-DataUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.2;
 				TEST_TARGET_NAME = "Survey Data";
 			};
 			name = Debug;
@@ -561,7 +609,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "MLP.Survey-DataUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.2;
 				TEST_TARGET_NAME = "Survey Data";
 			};
 			name = Release;

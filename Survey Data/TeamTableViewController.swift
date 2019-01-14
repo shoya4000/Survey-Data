@@ -18,10 +18,6 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
     var lastNames = [String]()
     var order: Dictionary<String, String> = [:]
     
-    @IBOutlet weak var submitButton: UIToolbar!
-    @IBAction func SubmitNames(_ sender: Any) {
-        performSegue(withIdentifier: "unwindToDetailView", sender: self.submitButton)
-    }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         selectedPeople = selectedPeople.sorted(by:<)
         if selectedPeople.count != 0 {
@@ -90,13 +86,16 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
         
         self.hideKeyboardWhenTappedAround() 
     }
-    func insertNewTeamMember(_ sender: Any) {
+    @objc func insertNewTeamMember(_ sender: Any) {
         if newName.text != "" {
             mlpTeam.insert(newName.text!, at: 0)
             let split = newName.text?.characters.split(separator: " ")
             let newLastName = String(split!.suffix(1).joined(separator: [" "]))
 
             lastNames.insert(newLastName, at: 0)
+            for index in 0...mlpTeam.count-1 {
+                order[lastNames[index]] = mlpTeam[index]
+            }
             alphabetSortLastNames()
             newName.text = ""
             teamTable.reloadData()
@@ -122,12 +121,10 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
     // MARK: - Table view data source
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
         return mlpTeam.count
     }
 
@@ -137,7 +134,7 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
         
         // Configure the cell...
         cell.name.text = mlpTeam[indexPath.row]
-        cell.selectionStyle = UITableViewCellSelectionStyle.blue
+        cell.selectionStyle = UITableViewCell.SelectionStyle.blue
         return cell
     }
 
@@ -150,7 +147,7 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
     */
     
     // Override to support editing the table view.
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             // Delete the row from the data source
             mlpTeam.remove(at: indexPath.row)

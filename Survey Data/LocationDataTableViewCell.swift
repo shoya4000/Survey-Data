@@ -12,12 +12,28 @@ class LocationDataTableViewCell: UITableViewCell {
     
     @IBOutlet weak var LocationName: UITextField!
     @IBOutlet weak var LocationNarrative: UITextView!
+    @IBOutlet weak var elevation: UITextField!
+    @IBOutlet weak var getGPS: UIButton!
+    @IBOutlet weak var gpsLatDeg: UITextField!
+    @IBOutlet weak var gpsLatMin: UITextField!
+    @IBOutlet weak var gpsLatDir: UITextField!
+    @IBOutlet weak var gpsLonDeg: UITextField!
+    @IBOutlet weak var gpsLonMin: UITextField!
+    @IBOutlet weak var gpsLonDir: UITextField!
     @IBOutlet weak var LocationPhotos: UICollectionView!
-    @IBOutlet weak var CellContent: UIView!
 
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        gpsLatDeg.keyboardType = UIKeyboardType.numberPad
+        gpsLatMin.keyboardType = UIKeyboardType.numberPad
+        gpsLonDeg.keyboardType = UIKeyboardType.numberPad
+        gpsLonMin.keyboardType = UIKeyboardType.numberPad
+        
+        getGPS.backgroundColor = .clear
+        getGPS.layer.cornerRadius = 3
+        getGPS.layer.borderWidth = 2
+        getGPS.layer.borderColor = UIColor.blue.cgColor
         LocationPhotos.reloadData()
     }
 
@@ -42,35 +58,3 @@ extension LocationDataTableViewCell {
         get { return LocationPhotos.contentOffset.x }
     }
 }
-/* Managed to get textField and textView editable via:
-
-func textFieldDidBeginEditing(_ textField: UITextField) {
-    let touchPoint = (textField).convert(CGPoint.zero, to: self.LocationDataTable)
-    let cell = LocationDataTable.cellForRow(at: (LocationDataTable.indexPathForRow(at: touchPoint))!) as! LocationDataTableViewCell
-    if textField == cell.LocationName {
-        debugPrint("selected textfield in row")
-    }
-}
-
-func textFieldDidEndEditing(_ textField: UITextField) {
-    let touchPoint = (textField).convert(CGPoint.zero, to: self.LocationDataTable)
-    let indexPath = LocationDataTable.indexPathForRow(at: touchPoint)
-    let cell = LocationDataTable.cellForRow(at: indexPath!) as! LocationDataTableViewCell
-    if textField == cell.LocationName {
-        debugPrint("changing locationname at: ")
-        debugPrint(indexPath?.row)
-        debugPrint("to: ")
-        debugPrint(textField.text!)
-        survey?.locationsData?[(indexPath?.row)!].locationName = textField.text!
-    }
-}
-
-func textViewDidEndEditing(_ textView: UITextView) {
-    let touchPoint = (textView).convert(CGPoint.zero, to: self.LocationDataTable)
-    let indexPath = LocationDataTable.indexPathForRow(at: touchPoint)
-    let cell = LocationDataTable.cellForRow(at: indexPath!) as! LocationDataTableViewCell
-    if textView == cell.LocationNarrative {
-        survey?.locationsData?[(indexPath?.row)!].locationNarrative = textView.text!
-    }
-}
-*/

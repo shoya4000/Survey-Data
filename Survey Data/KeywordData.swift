@@ -48,7 +48,11 @@ class KeywordData: NSObject, NSCoding, NSCopying {
     required convenience init?(coder aDecoder: NSCoder) {
         // The category and keyword are required. If we cannot decode them, the initializer should fail.
         guard let category = aDecoder.decodeObject(forKey: PropertyKey.category) as? String, let keyword = aDecoder.decodeObject(forKey: PropertyKey.keyword) as? String else {
-            os_log("Unable to decode KeywordData", log: OSLog.default, type: .debug)
+            if #available(iOS 10.0, *) {
+                os_log("Unable to decode KeywordData", log: OSLog.default, type: .debug)
+            } else {
+                // Fallback on earlier versions
+            }
             return nil
         }
         // Because the comment is optional, just use conditional cast.

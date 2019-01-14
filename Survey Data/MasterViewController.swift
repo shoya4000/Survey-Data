@@ -558,19 +558,21 @@ class MasterViewController: UITableViewController {
     private func loadSurveys() -> [Survey]? {
         //load up from the array of saved surveys
         let surveyIDList = NSKeyedUnarchiver.unarchiveObject(withFile: SurveySaveList.ArchiveURL.path) as? SurveySaveList
-        var allSurveys = [Survey]()
-        for surveyID in (surveyIDList?.surveyList)! {
-            let DocumentsDirectory = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
-            let ArchiveURL = DocumentsDirectory.appendingPathComponent(surveyID)
-            allSurveys.append((NSKeyedUnarchiver.unarchiveObject(withFile: ArchiveURL.path) as? Survey)!)
+        
+        if surveyIDList != nil {
+            debugPrint("Loading saved surveys")
+            var allSurveys = [Survey]()
+            for surveyID in ((surveyIDList?.surveyList)!) {
+                let DocumentsDirectory = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
+                let ArchiveURL = DocumentsDirectory.appendingPathComponent(surveyID)
+                allSurveys.append((NSKeyedUnarchiver.unarchiveObject(withFile: ArchiveURL.path) as? Survey)!)
+            }
+            return allSurveys
         }
-
-        return allSurveys
-        
-        //need to run the save once before the above can be used to load
-        
-        //return NSKeyedUnarchiver.unarchiveObject(withFile: Survey.ArchiveURL.path) as? [Survey]
-        
+        else{
+            debugPrint("no surveys saved yet")
+            return NSKeyedUnarchiver.unarchiveObject(withFile: Survey.ArchiveURL.path) as? [Survey]
+        }
         
         //to get Data from the app on an iPad:
         //1. Plug it into computer

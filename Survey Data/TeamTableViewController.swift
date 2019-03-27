@@ -48,7 +48,7 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
             }
             else {
                 mlpTeam.insert(people, at: 0)
-                let split = people.characters.split(separator: " ")
+                let split = people.split(separator: " ")
                 let newLastName = String(split.suffix(1).joined(separator: [" "]))
                 
                 lastNames.insert(newLastName, at: 0)
@@ -67,7 +67,7 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
         }
         if selectedPeople.count != 0 {
             for index in 0...selectedPeople.count-1 {
-            let split = selectedPeople[index].characters.split(separator: " ")
+            let split = selectedPeople[index].split(separator: " ")
             let newLastName = String(split.suffix(1).joined(separator: [" "]))
             selectedPeople[index] = newLastName
             }
@@ -89,7 +89,7 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
     @objc func insertNewTeamMember(_ sender: Any) {
         if newName.text != "" {
             mlpTeam.insert(newName.text!, at: 0)
-            let split = newName.text?.characters.split(separator: " ")
+            let split = newName.text?.split(separator: " ")
             let newLastName = String(split!.suffix(1).joined(separator: [" "]))
 
             lastNames.insert(newLastName, at: 0)

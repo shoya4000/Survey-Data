@@ -387,13 +387,13 @@ class Survey: NSObject, NSCoding {
             }
             return nil
         }
-        guard let year = aDecoder.decodeInteger(forKey: PropertyKey.year) as? Int else {
+        let year = aDecoder.decodeInteger(forKey: PropertyKey.year) as Int
+        if year == 0 {
             if #available(iOS 10.0, *) {
                 os_log("Unable to decode Survey Year", log: OSLog.default, type: .debug)
             } else {
                 // Fallback on earlier versions
             }
-            return nil
         }
         guard let stationName = aDecoder.decodeObject(forKey: PropertyKey.stationName) as? String  else {
             if #available(iOS 10.0, *) {

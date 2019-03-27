@@ -13,7 +13,7 @@ class SurveysViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var surveysTable: UITableView!
     @IBAction func deselectAll(_ sender: Any) {
         for survey in selectedSurveys {
-            let index = Int(surveys.index(of: survey)!)
+            let index = Int(surveys.firstIndex(of: survey)!)
             self.surveysTable.deselectRow(at: IndexPath(row: index, section: 0), animated: false)
         }
         selectedSurveys = [SurveyTextOnly]()
@@ -133,8 +133,8 @@ class SurveysViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func selectRows(){
         for survey in shownSelectedSurveys {
-            if surveysSearchResults.index(of: survey) != nil {
-                let index = Int(surveysSearchResults.index(of: survey)!)
+            if surveysSearchResults.firstIndex(of: survey) != nil {
+                let index = Int(surveysSearchResults.firstIndex(of: survey)!)
             self.surveysTable.selectRow(at: IndexPath(row: index, section: 0), animated: false, scrollPosition: .none)
                 selectedSurveys.insert(surveysSearchResults[index], at: 0)
             }

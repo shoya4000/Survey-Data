@@ -43,8 +43,8 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
             order[lastNames[index]] = mlpTeam[index]
         }
         for people in selectedPeople {
-            if mlpTeam.index(of: people) != nil {
-                teamTable.selectRow(at: IndexPath(row: mlpTeam.index(of: people)!, section: 0), animated: true, scrollPosition: .none)
+            if mlpTeam.firstIndex(of: people) != nil {
+                teamTable.selectRow(at: IndexPath(row: mlpTeam.firstIndex(of: people)!, section: 0), animated: true, scrollPosition: .none)
             }
             else {
                 mlpTeam.insert(people, at: 0)
@@ -62,7 +62,7 @@ class TeamTableViewController: UIViewController, UITableViewDelegate, UITableVie
                 names.mlpTeam = mlpTeam
                 names.lastNames = lastNames
                 saveNames()
-                teamTable.selectRow(at: IndexPath(row: mlpTeam.index(of: people)!, section: 0), animated: true, scrollPosition: .none)
+                teamTable.selectRow(at: IndexPath(row: mlpTeam.firstIndex(of: people)!, section: 0), animated: true, scrollPosition: .none)
             }
         }
         if selectedPeople.count != 0 {

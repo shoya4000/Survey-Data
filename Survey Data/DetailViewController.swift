@@ -557,7 +557,7 @@ class DetailViewController: UIViewController, UITableViewDelegate, UITableViewDa
         StationName.delegate = self as UITextFieldDelegate
         
         repeatDate.delegate = self as UITextFieldDelegate
-        startTime.delegate = self as UITextFieldDelegate!
+        startTime.delegate = self as UITextFieldDelegate?
         finishTime.delegate = self as UITextFieldDelegate
         
         getGPS.backgroundColor = .clear

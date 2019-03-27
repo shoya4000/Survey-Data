@@ -13,7 +13,7 @@ class SurveyorsViewController: UIViewController, UITableViewDelegate, UITableVie
     @IBOutlet weak var surveyorsTable: UITableView!
     @IBAction func deselectAll(_ sender: Any) {
         for surveyor in selectedSurveyors {
-            let index = Int(surveyors.index(of: surveyor)!)
+            let index = Int(surveyors.firstIndex(of: surveyor)!)
             self.surveyorsTable.deselectRow(at: IndexPath(row: index, section: 0), animated: false)
         }
         selectedSurveyors = [String]()
@@ -26,7 +26,7 @@ class SurveyorsViewController: UIViewController, UITableViewDelegate, UITableVie
         surveyorsTable.allowsMultipleSelection = true
         
         for surveyor in selectedSurveyors {
-            let index = Int(surveyors.index(of: surveyor)!)
+            let index = Int(surveyors.firstIndex(of: surveyor)!)
             self.surveyorsTable.selectRow(at: IndexPath(row: index, section: 0), animated: false, scrollPosition: .none)
         }
         // Do any additional setup after loading the view.
